@@ -1,0 +1,184 @@
+//index.html
+<!DOCTYPE html>
+<html lang="pl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Work Calendar</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="manifest" href="manifest.json">
+    <!-- XLSX — ВАРИАНТ ТОЛЬКО ОДИН! -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.19.3/xlsx.full.min.js"></script>
+
+    <!-- Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+
+</head>
+
+<body>
+
+    <!-- ==================== МОДАЛКИ ==================== -->
+
+    <div id="modalReports" class="modal hidden">
+        <div class="modal-window reports-window">
+            <h2>Отчёты</h2>
+
+            <button id="btnReportWork" class="report-option">📄 Отчёт по сменам</button>
+            <button id="btnReportTasks" class="report-option">📝 Отчёт по задачам</button>
+
+            <button onclick="closeModal('modalReports')" class="close-btn">Закрыть</button>
+        </div>
+    </div>
+<!-- modalReportOutput -->
+    <div id="modalReportOutput" class="modal hidden">
+        <div class="modal-window" style="max-width:900px; max-height:70vh; overflow:auto;">
+            <h2 id="reportTitle"></h2>
+            <div id="reportContent"></div>
+            <button onclick="closeModal('modalReportOutput')" class="close-btn">Закрыть</button>
+        </div>
+    </div>
+    <!-- modalWork -->
+    <div id="modalWork" class="modal hidden">
+        <div class="modal-window">
+
+            <div class="modal-close-x" onclick="closeModal('modalWork')">✖</div>
+
+            <h2 class="modal-title" id="modalWorkTitle">Добавить рабочее время</h2>
+
+            <div class="form-group">
+                <label>📅 Дата:</label>
+                <input type="date" id="workDate">
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>🕒 Начало:</label>
+                    <input type="time" id="workStart">
+                </div>
+
+                <div class="form-group">
+                    <label>🕒 Конец:</label>
+                    <input type="time" id="workEnd">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>📍 Место:</label>
+                <input type="text" id="workPlace">
+            </div>
+
+            <div class="form-group">
+                <label>👤 С кем:</label>
+                <input type="text" id="workPartner">
+            </div>
+
+            <input type="hidden" id="workId">
+
+            <div class="modal-actions">
+                <button id="saveWork" class="modal-btn edit">💾 Сохранить</button>
+                <button id="deleteWork" class="modal-btn delete hidden">🗑 Удалить</button>
+
+            </div>
+
+        </div>
+    </div>
+
+    <!-- modalTask -->
+    <div id="modalTask" class="modal hidden">
+        <div class="modal-window">
+
+            <!-- красный крестик -->
+            <div class="modal-close-x" onclick="closeModal('modalTask')">✖</div>
+
+            <h2 class="modal-title" id="modalTaskTitle">Добавить задачу</h2>
+
+            <div class="form-group">
+                <label for="taskDate">📅 Дата:</label>
+                <input type="date" id="taskDate">
+            </div>
+
+            <div class="form-row">
+                <div class="form-group" style="flex: 1;">
+                    <label for="taskTime">⏱ Время:</label>
+                    <input type="time" id="taskTime">
+                </div>
+                <div style="width: 16px;"></div>
+            </div>
+
+            <div class="form-group">
+                <label for="taskTitle">📝 Название:</label>
+                <input type="text" id="taskTitle" placeholder="Короткое имя задачи">
+            </div>
+
+            <div class="form-group">
+                <label for="taskDescription">📄 Описание:</label>
+                <textarea id="taskDescription" rows="3"
+                    style="resize:vertical; padding:10px; border-radius:8px;"></textarea>
+            </div>
+
+            <input type="hidden" id="taskId">
+
+            <div class="modal-actions" style="margin-top:6px;">
+                <button id="saveTask" class="modal-btn edit">💾 Сохранить</button>
+                <!-- кнопка удаления видима только при редактировании — скроется по умолчанию -->
+                <button id="deleteTask" class="modal-btn delete hidden">🗑 Удалить</button>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- modalDay -->
+    <div id="modalDay" class="modal hidden">
+        <div class="modal-window">
+            <h2 id="dayTitle"></h2>
+            <div id="dayWorkInfo"></div>
+            <div id="dayTaskInfo"></div>
+            <div class="modal-close-x" onclick="closeModal('modalDay')">✖</div>
+        </div>
+    </div>
+
+    <!-- ==================== UI ==================== -->
+
+    <header class="header">
+        <button id="prevMonth">←</button>
+        <h1 id="monthTitle"></h1>
+        <div class="header-buttons">
+            <button id="exportWeekBtn">📥 Экспорт</button>
+            <button id="nextMonth">→</button>
+        </div>
+        <!-- Ночной режим (toggle) -->
+        <button id="themeToggle">🌙</button>
+
+    </header>
+
+    <div id="weekdayHeader" class="calendar-grid weekday-grid"></div>
+    <div id="calendarGrid" class="calendar-grid"></div>
+    <div id="monthSummary" class="month-summary"></div>
+
+    <button id="fabMenu" class="fab">+</button>
+
+    <div id="fabMenuOptions" class="fab-options hidden">
+        <button id="fabAddWork" class="fab-option">Добавить смену</button>
+        <button id="fabAddTask" class="fab-option">Добавить задачу</button>
+        <button id="reportsBtn" class="fab-option">📄 Отчёты</button>
+    </div>
+
+    <!-- ==================== JS (ТОЛЬКО ОДИН РАЗ!) ==================== -->
+
+    <!-- Остальные JS -->
+    <script defer src="js/supabase.js"></script>
+    <script defer src="js/ui.js"></script>
+    <script defer src="js/calendar.js"></script>
+    <script defer src="js/save_task.js"></script>
+    <script defer src="js/open_day.js"></script>
+    <script defer src="js/reports.js"></script>
+    <script src="js/libs/xlsx.full.min.js"></script>
+    <script defer src="js/export_to_exel.js"></script>
+    <script defer src="js/app.js"></script>
+
+
+</body>
+
+</html>

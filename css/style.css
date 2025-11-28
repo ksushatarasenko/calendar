@@ -1,0 +1,632 @@
+/* =======================================================
+   🌗 ТЕМА (LIGHT / DARK)
+   ======================================================= */
+
+:root {
+  --bg: #f4f4f4;
+  --text: #222;
+
+  --card-bg: #ffffff;
+  --card-shadow: rgba(0, 0, 0, 0.15);
+
+  --accent-blue: #3A86FF;
+  --accent-blue-light: #E8F1FF;
+
+  --accent-green: #37d67a;
+
+  --fab-bg: #0088a8;
+}
+
+body.dark {
+  --bg: #1b1e23;
+  --text: #e8e8e8;
+
+  --card-bg: #2a2f37;
+  --card-shadow: rgba(0, 0, 0, 0.5);
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Inter', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+}
+
+
+/* =======================================================
+   🧭 HEADER (шапка)
+   ======================================================= */
+
+.header {
+  padding: 20px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 22px;
+  font-weight: 700;
+
+  background: var(--card-bg);
+  box-shadow: 0 4px 14px var(--card-shadow);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  border-bottom-left-radius: 14px;
+  border-bottom-right-radius: 14px;
+}
+
+/* Кнопки переключения месяцев */
+.header button {
+  background: var(--card-bg);
+  border: 2px solid #ccc;
+  padding: 6px 12px;
+  border-radius: 12px;
+  cursor: pointer;
+  font-size: 18px;
+  transition: 0.2s;
+}
+
+.header button:hover {
+  border-color: var(--accent-blue);
+  color: var(--accent-blue);
+  box-shadow: 0 2px 6px var(--card-shadow);
+}
+
+/* Кнопка экспорта */
+#exportWeekBtn {
+  border-radius: 12px;
+  border: 2px solid #ccc;
+  padding: 8px 14px;
+  background: var(--card-bg);
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+#exportWeekBtn:hover {
+  border-color: var(--accent-blue);
+  color: var(--accent-blue);
+}
+
+
+/* =======================================================
+   📅 КАЛЕНДАРЬ
+   ======================================================= */
+
+/* Сетка дней недели */
+.weekday-grid {
+  margin-top: 10px;
+  padding: 0 10px;
+}
+
+.weekday {
+  text-align: center;
+  font-weight: 600;
+  font-size: 16px;
+  color: #0061c2;
+  padding: 6px 0;
+}
+
+/* Основная сетка календаря */
+.calendar-grid {
+  padding: 10px;
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 8px;
+}
+
+/* Одна клетка календаря */
+.day-card {
+  background: var(--card-bg);
+  border-radius: 12px;
+  min-height: 90px;
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  transition: 0.2s;
+  position: relative;
+  box-shadow: 0 4px 12px var(--card-shadow);
+}
+
+.day-card:not(.day-disabled):hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 16px var(--card-shadow);
+}
+
+/* Нерабочие дни предыдущего/следующего месяца */
+.day-disabled {
+  opacity: 0.35;
+  background: #e3e3e3 !important;
+  pointer-events: none;
+}
+
+.day-number {
+  font-weight: 700;
+  font-size: 16px;
+}
+
+/* Текущий день */
+.day-today {
+  background: var(--accent-blue-light) !important;
+  border: 2px solid var(--accent-blue) !important;
+  box-shadow: 0 0 12px rgba(58, 134, 255, 0.5);
+}
+
+/* Вывод смен */
+.day-info {
+  margin-top: 8px;
+  font-size: 13px;
+  line-height: 16px;
+  color: #156315;
+  font-weight: 600;
+}
+
+/* Акцент смены */
+.work-badge {
+  display: inline-block;
+  background: #d9ebff;
+  color: #0366d6;
+  padding: 3px 6px;
+  border-radius: 6px;
+  font-size: 11px;
+  box-shadow: inset 0 0 4px rgba(0,0,0,0.12);
+}
+
+/* Точка задач */
+.task-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  position: absolute;
+  right: 6px;
+  bottom: 6px;
+}
+
+.task-dot.green { background: var(--accent-green); }
+.task-dot.gray  { background: #9e9e9e; }
+
+
+/* =======================================================
+   🧮 СУММА ЧАСОВ МЕСЯЦА
+   ======================================================= */
+
+.month-summary {
+  margin: 20px auto;
+  max-width: 360px;
+  padding: 14px 20px;
+  border-radius: 14px;
+  font-size: 18px;
+  font-weight: 600;
+  background: var(--card-bg);
+  color: #1b3b5f;
+  box-shadow: 0 4px 14px var(--card-shadow);
+  text-align: center;
+}
+
+
+/* =======================================================
+   ⚙️ FAB МЕНЮ
+   ======================================================= */
+
+.fab {
+  position: fixed;
+  bottom: 30px;
+  right: 20px;
+  width: 62px;
+  height: 62px;
+  border-radius: 50%;
+  border: none;
+  font-size: 32px;
+  color: white;
+  background: var(--fab-bg);
+  box-shadow: 0 4px 12px var(--card-shadow);
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.fab:hover {
+  transform: scale(1.08);
+}
+
+/* Меню FAB */
+.fab-options {
+  position: fixed;
+  bottom: 110px;
+  right: 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.fab-option {
+  background: var(--fab-bg);
+  color: white;
+  padding: 12px 16px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px var(--card-shadow);
+  font-size: 16px;
+  border: none;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.fab-option:hover {
+  transform: scale(1.05);
+}
+
+.hidden {
+  display: none;
+}
+
+
+/* =======================================================
+   🎛 МОДАЛЬНЫЕ ОКНА — КРАСИВЫЕ, ИСПРАВЛЕННЫЕ
+   ======================================================= */
+
+.modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+
+  opacity: 0;
+  pointer-events: none;
+  transition: 0.25s ease;
+}
+
+.modal:not(.hidden) {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.modal-window {
+  width: 92%;
+  max-width: 420px;
+  background: var(--card-bg);
+  color: var(--text);
+  padding: 20px 22px;
+  border-radius: 16px;
+
+  box-shadow: 0 10px 30px var(--card-shadow);
+  transform: translateY(20px);
+  transition: 0.25s ease;
+  line-height: 155%;
+}
+
+
+.modal:not(.hidden) .modal-window {
+  transform: translateY(0);
+}
+
+.close-btn {
+  width: 100%;
+  border: none;
+  padding: 12px 16px;
+  border-radius: 12px;
+  margin-top: 16px;
+  font-size: 16px;
+  font-weight: 600;
+  background: #d6d6d6;
+  color: #222;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+body.dark .close-btn {
+  background: #444;
+  color: #eee;
+}
+
+.close-btn:hover {
+  background: #c2c2c2;
+}
+
+body.dark .close-btn:hover {
+  background: #555;
+}
+
+
+/* =======================================================
+   📊 ОТЧЁТЫ
+   ======================================================= */
+
+.report-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 15px;
+}
+
+.report-table th {
+  background: #f0f0f0;
+  padding: 8px;
+  text-align: left;
+}
+
+.report-table td {
+  padding: 6px;
+  border-bottom: 1px solid #ddd;
+}
+/* =======================================================
+   🔘 СТИЛЬНЫЕ КНОПКИ В МОДАЛКЕ
+   ======================================================= */
+
+.modal-actions {
+  margin-top: 14px;
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.modal-btn {
+  padding: 10px 14px;
+  border-radius: 12px;
+  border: none;
+  font-size: 15px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+
+  cursor: pointer;
+  transition: 0.2s;
+  box-shadow: 0 2px 6px var(--card-shadow);
+}
+
+/* Изменить */
+.modal-btn.edit {
+  background: #3A86FF;
+  color: white;
+}
+
+.modal-btn.edit:hover {
+  background: #256de1;
+}
+
+/* Удалить */
+.modal-btn.delete {
+  background: #d9534f;
+  color: white;
+}
+
+.modal-btn.delete:hover {
+  background: #c94541;
+}
+
+/* Закрыть */
+.modal-btn.close {
+  background: #d0d4db;
+  color: #222;
+}
+
+body.dark .modal-btn.close {
+  background: #555;
+  color: #eee;
+}
+
+.modal-btn.close:hover {
+  background: #c3c9d1;
+}
+
+body.dark .modal-btn.close:hover {
+  background: #666;
+}
+
+/* Кнопки становятся крупнее на мобилке */
+@media (max-width: 420px) {
+  .modal-btn {
+    flex: 1 1 100%;
+    justify-content: center;
+  }
+}
+/* =======================================================
+   🗂 ВИЗУАЛЬНЫЕ БЛОКИ В МОДАЛКЕ ДНЯ
+   ======================================================= */
+
+.modal-window {
+  position: relative;
+}
+
+/* Красный крестик */
+.modal-close-x {
+  position: absolute;
+  top: 12px;
+  right: 14px;
+  font-size: 22px;
+  font-weight: 700;
+  color: #d9534f;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.modal-close-x:hover {
+  color: #b53c38;
+}
+
+/* Заголовки секций */
+.day-section-title {
+  font-size: 18px;
+  font-weight: 700;
+  margin: 10px 0 6px;
+  color: var(--text);
+}
+
+/* Карточка смены */
+.day-work-card,
+.day-task-card {
+  background: var(--card-bg);
+  border-radius: 12px;
+  padding: 12px 16px;
+  margin-bottom: 12px;
+  box-shadow: 0 3px 10px var(--card-shadow);
+}
+
+/* Смена */
+.work-time {
+  font-size: 16px;
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+
+.work-place,
+.work-partner {
+  font-size: 14px;
+  margin-top: 2px;
+}
+
+/* Задача */
+.task-main {
+  display: flex;
+  gap: 8px;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.task-desc {
+  margin-top: 4px;
+  font-size: 14px;
+  opacity: 0.8;
+}
+
+/* Нет данных */
+.empty {
+  margin: 8px 0 14px;
+  opacity: 0.6;
+  font-size: 14px;
+  font-style: italic;
+}
+/* =======================================================
+   📝 ФОРМА ДОБАВЛЕНИЯ/РЕДАКТИРОВАНИЯ СМЕНЫ
+   ======================================================= */
+
+.modal-title {
+  font-size: 22px;
+  font-weight: 700;
+  margin-bottom: 14px;
+  text-align: center;
+}
+
+.form-group {
+  margin-bottom: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.form-group label {
+  font-weight: 600;
+  font-size: 15px;
+  opacity: 0.9;
+}
+
+input[type="date"],
+input[type="time"],
+input[type="text"] {
+  padding: 10px 12px;
+  font-size: 15px;
+  border-radius: 10px;
+  border: 1px solid #ccc;
+  background: var(--card-bg);
+  color: var(--text);
+  transition: 0.2s;
+}
+
+input:focus {
+  border-color: var(--accent-blue);
+  box-shadow: 0 0 5px rgba(58, 134, 255, 0.6);
+  outline: none;
+}
+
+.form-row {
+  display: flex;
+  gap: 12px;
+}
+
+.form-row .form-group {
+  flex: 1;
+}
+/*  */
+#deleteTask.hidden,
+#deleteWork.hidden {
+  display: none !important;
+}
+
+/* ===========================
+   🌙 Тёмная тема: неактивные дни
+   =========================== */
+body.dark .day-disabled {
+    background: #2f333b !important;   /* темнее других ячеек */
+    opacity: 0.35 !important;         /* сильнее затемнить */
+    border-color: #202329 !important;
+    color: #777 !important;
+    pointer-events: none;
+}
+
+/* Цифра дня внутри */
+body.dark .day-disabled .day-number {
+    color: #666 !important;
+}
+
+/* Для задачи-точки (если вдруг есть) */
+body.dark .day-disabled .task-dot {
+    opacity: 0.3 !important;
+}
+/* ----------------------------
+   ТЁМНАЯ ТЕМА: видимый активный/сегодняшний день
+   Накладываем с высокой приоритетностью
+   ---------------------------- */
+body.dark .day-today,
+body.dark .day-active {
+  background: linear-gradient(180deg, #184f9a 0%, #153e88 100%) !important; /* насыщенный синий градиент */
+  border: 2px solid #6fb2ff !important;            /* яркая голубая рамка */
+  box-shadow: 0 6px 18px rgba(60,140,255,0.20) !important; /* мягкое свечение */
+  transform: translateY(-2px) !important;
+}
+
+/* цифра дня — белая и контрастная */
+body.dark .day-today .day-number,
+body.dark .day-active .day-number {
+  color: #ffffff !important;
+  text-shadow: 0 1px 0 rgba(0,0,0,0.4);
+}
+
+/* текст инфо (место/часы) — светлый */
+body.dark .day-today .day-info,
+body.dark .day-active .day-info {
+  color: #dbeeff !important;
+}
+
+/* если есть точка задач — сделать заметней */
+body.dark .day-today .task-dot,
+body.dark .day-active .task-dot {
+  opacity: 1 !important;
+}
+
+/* если элемент был помечен неактивным и одновременно today — убрать pointer-events и не делать его disabled-style */
+body.dark .day-today.day-disabled,
+body.dark .day-active.day-disabled {
+  opacity: 1 !important;
+  background: linear-gradient(180deg, #184f9a 0%, #153e88 100%) !important;
+  pointer-events: auto !important;
+}
+
+/* DEBUG (временно) — показать outline чтобы видеть область. 
+   Уберите/закомментируйте после проверки */
+body.dark .day-today.debug,
+body.dark .day-active.debug {
+  outline: 3px solid rgba(111,178,255,0.6) !important;
+}
+/* ===========================
+   🌙 Тёмная тема — итог часов месяца
+   =========================== */
+body.dark .month-summary {
+    background: #242931 !important;       /* мягкий тёмно-серый */
+    color: #d8e7ff !important;            /* светлый голубоватый текст */
+    border: 1px solid #3b4452 !important; /* тонкая рамка */
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.45) !important;
+}
+
+body.dark .month-summary strong {
+    color: #ffffff !important;
+}
