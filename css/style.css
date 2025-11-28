@@ -551,6 +551,103 @@ input:focus {
 #deleteWork.hidden {
   display: none !important;
 }
+/* ===========================
+   Модалка отчётов — базовые стили
+   =========================== */
+
+.modal-panel {
+    padding: 26px;
+    border-radius: 16px;
+    background: var(--card-bg);
+    box-shadow: 0 10px 26px rgba(0,0,0,0.18);
+    width: 90%;
+    max-width: 430px;
+    position: relative;
+    animation: modalFade 0.25s ease;
+}
+
+/* заголовок */
+.modal-panel .modal-title {
+    font-size: 24px;
+    font-weight: 700;
+    margin-bottom: 18px;
+    color: var(--text);
+}
+
+/* крестик закрытия */
+.modal-panel .modal-close-x {
+    position: absolute;
+    top: 14px;
+    right: 16px;
+    background: #ff4a55;
+    color: white;
+    width: 26px;
+    height: 26px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    font-size: 15px;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.modal-panel .modal-close-x:hover {
+    background: #e1313c;
+}
+
+/* кнопки отчетов */
+.report-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin: 10px 0 20px;
+}
+
+.report-btn {
+    width: 100%;
+    padding: 12px 18px;
+    font-size: 17px;
+    border-radius: 10px;
+    border: 1px solid #dcdcdc;
+    background: #f7f7f7;
+    color: #222;
+    cursor: pointer;
+    text-align: left;
+    transition: 0.2s;
+}
+
+.report-btn:hover {
+    background: #ebebeb;
+}
+
+/* Кнопка закрыть */
+.modal-btn.cancel {
+    width: 100%;
+    background: #ddd;
+    padding: 12px;
+    border-radius: 10px;
+    border: none;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.modal-btn.cancel:hover {
+    background: #c8c8c8;
+}
+
+/* Анимация */
+@keyframes modalFade {
+    from {
+        opacity: 0;
+        transform: translateY(15px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
 
 /* ===========================
    🌙 Тёмная тема: неактивные дни
@@ -629,4 +726,115 @@ body.dark .month-summary {
 
 body.dark .month-summary strong {
     color: #ffffff !important;
+}
+
+/* ========================================
+   📱 АДАПТИВНАЯ МОБИЛЬНАЯ ВЕРСИЯ
+   Работает для ширины < 480px
+   ======================================== */
+@media (max-width: 480px) {
+
+  /* Заголовок месяца */
+  #monthTitle {
+      font-size: 26px !important;
+      line-height: 28px;
+      margin-bottom: 8px;
+  }
+
+  /* Шапка */
+  .header {
+      padding: 10px;
+      flex-direction: column;
+      gap: 10px;
+  }
+
+  .header-buttons {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      width: 100%;
+  }
+
+  .header button {
+      transform: scale(0.85);
+  }
+
+  /* Кнопки ← → */
+  #prevMonth, #nextMonth {
+      width: 36px;
+      height: 36px;
+      font-size: 18px;
+  }
+
+  /* Календарная сетка */
+  .calendar-grid {
+      gap: 4px;
+      padding: 8px;
+  }
+
+  .day-card {
+      min-height: 62px;
+      padding: 4px;
+      border-radius: 10px;
+  }
+
+  .day-number {
+      font-size: 13px;
+  }
+
+  .day-info {
+      font-size: 11px;
+      line-height: 13px;
+  }
+
+  /* Дни недели */
+  .weekday {
+      font-size: 13px;
+      padding: 4px 0;
+  }
+
+  /* Плавающая кнопка */
+  .fab {
+      width: 54px;
+      height: 54px;
+      bottom: 22px;
+      right: 16px;
+      font-size: 28px;
+  }
+
+  /* FAB меню */
+  .fab-options {
+      bottom: 90px;
+      right: 16px;
+      gap: 8px;
+  }
+
+  .fab-option {
+      font-size: 14px;
+      padding: 10px 14px;
+  }
+
+  /* Модалки */
+  .modal-window {
+      width: 92%;
+      padding: 20px 18px;
+      border-radius: 12px;
+  }
+
+  .modal-title {
+      font-size: 20px;
+  }
+
+  .modal-close-x {
+      width: 24px;
+      height: 24px;
+      font-size: 14px;
+  }
+
+  /* Итог часов */
+  .month-summary {
+      font-size: 15px;
+      padding: 10px 16px;
+      max-width: 260px;
+  }
 }

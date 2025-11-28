@@ -1,4 +1,4 @@
-//index.html
+
 <!DOCTYPE html>
 <html lang="pl">
 
@@ -20,17 +20,32 @@
 <body>
 
     <!-- ==================== МОДАЛКИ ==================== -->
-
+<!-- HTML для модального окна отчётов -->
     <div id="modalReports" class="modal hidden">
-        <div class="modal-window reports-window">
-            <h2>Отчёты</h2>
+    <div class="modal-window modal-panel">
 
-            <button id="btnReportWork" class="report-option">📄 Отчёт по сменам</button>
-            <button id="btnReportTasks" class="report-option">📝 Отчёт по задачам</button>
+        <!-- Красный крестик закрытия -->
+        <div class="modal-close-x" onclick="closeModal('modalReports')">✖</div>
 
-            <button onclick="closeModal('modalReports')" class="close-btn">Закрыть</button>
+        <h2 class="modal-title">Отчёты</h2>
+
+        <div class="report-buttons">
+            <button id="btnReportWork" class="report-btn">
+                📄 Отчёт по сменам
+            </button>
+
+            <button id="btnReportTasks" class="report-btn">
+                📝 Отчёт по задачам
+            </button>
         </div>
+
+        <!-- <button class="modal-btn cancel" onclick="closeModal('modalReports')">
+            Закрыть
+        </button> -->
+
     </div>
+</div>
+
 <!-- modalReportOutput -->
     <div id="modalReportOutput" class="modal hidden">
         <div class="modal-window" style="max-width:900px; max-height:70vh; overflow:auto;">
