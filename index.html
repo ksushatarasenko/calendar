@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="pl">
 
@@ -13,40 +12,38 @@
 
     <!-- Supabase -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-
 </head>
 
 <body>
 
     <!-- ==================== МОДАЛКИ ==================== -->
-<!-- HTML для модального окна отчётов -->
+    <!-- HTML для модального окна отчётов -->
     <div id="modalReports" class="modal hidden">
-    <div class="modal-window modal-panel">
+        <div class="modal-window modal-panel">
 
-        <!-- Красный крестик закрытия -->
-        <div class="modal-close-x" onclick="closeModal('modalReports')">✖</div>
+            <!-- Красный крестик закрытия -->
+            <div class="modal-close-x" onclick="closeModal('modalReports')">✖</div>
 
-        <h2 class="modal-title">Отчёты</h2>
+            <h2 class="modal-title">Отчёты</h2>
 
-        <div class="report-buttons">
-            <button id="btnReportWork" class="report-btn">
-                📄 Отчёт по сменам
-            </button>
+            <div class="report-buttons">
+                <button id="btnReportWork" class="report-btn">
+                    📄 Отчёт по сменам
+                </button>
 
-            <button id="btnReportTasks" class="report-btn">
-                📝 Отчёт по задачам
-            </button>
-        </div>
+                <button id="btnReportTasks" class="report-btn">
+                    📝 Отчёт по задачам
+                </button>
+            </div>
 
-        <!-- <button class="modal-btn cancel" onclick="closeModal('modalReports')">
+            <!-- <button class="modal-btn cancel" onclick="closeModal('modalReports')">
             Закрыть
         </button> -->
 
+        </div>
     </div>
-</div>
 
-<!-- modalReportOutput -->
+    <!-- modalReportOutput -->
     <div id="modalReportOutput" class="modal hidden">
         <div class="modal-window" style="max-width:900px; max-height:70vh; overflow:auto;">
             <h2 id="reportTitle"></h2>
@@ -157,14 +154,20 @@
     <!-- ==================== UI ==================== -->
 
     <header class="header">
-        <button id="prevMonth">←</button>
-        <h1 id="monthTitle"></h1>
-        <div class="header-buttons">
-            <button id="exportWeekBtn">📥 Экспорт</button>
+        <!-- Первая строка -->
+        <div class="header-row top-row">
+            <button id="prevMonth">←</button>
+
+            <div id="monthTitle">LISTOPAD 2025</div>
+
             <button id="nextMonth">→</button>
         </div>
-        <!-- Ночной режим (toggle) -->
-        <button id="themeToggle">🌙</button>
+
+        <!-- Вторая строка -->
+        <div class="header-row bottom-row">
+            <button id="exportWeekBtn">📤 Экспорт</button>
+            <button id="darkToggle">🌙</button>
+        </div>
 
     </header>
 
