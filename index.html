@@ -196,7 +196,13 @@
     <script defer src="js/export_to_exel.js"></script>
     <script defer src="js/app.js"></script>
 
-
+    <script>
+        if ("serviceWorker" in navigator) {
+            navigator.serviceWorker.register("/sw.js")
+                .then(() => console.log("Service Worker registered"))
+                .catch(err => console.error("SW error:", err));
+        }
+    </script>
 </body>
 
 </html>
