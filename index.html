@@ -9,22 +9,30 @@
     <link rel="manifest" href="manifest.json">
     <script>
         // ====================================================================
-        // FIX: Safari LockManager Polyfill — MUST LOAD BEFORE Supabase library
+        // SAFARI FIX — FORCE OVERRIDE navigator.locks (required for supabase-js)
         // ====================================================================
-        if (!("locks" in navigator)) {
-            console.warn("⚠ Safari detected — adding LockManager polyfill BEFORE supabase");
-            navigator.locks = {
-                request: async function (_name, callback) {
-                    return await callback({
-                        name: _name,
-                        mode: "exclusive",
-                        released: false,
-                        release: () => { }
-                    });
-                }
-            };
-        }
+        (function () {
+            const ua = navigator.userAgent.toLowerCase();
+            const isSafari = ua.includes("safari") && !ua.includes("chrome");
+
+            if (isSafari) {
+                console.warn("⚠ Safari detected — overriding LockManager entirely");
+
+                // Полностью заменяем LockManager — даже если Safari его имеет
+                navigator.locks = {
+                    request: async function (name, callback) {
+                        return await callback({
+                            name,
+                            mode: "exclusive",
+                            released: false,
+                            release() { /* ничего */ }
+                        });
+                    }
+                };
+            }
+        })();
     </script>
+
     <!-- XLSX — ВАРИАНТ ТОЛЬКО ОДИН! -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.19.3/xlsx.full.min.js"></script>
 

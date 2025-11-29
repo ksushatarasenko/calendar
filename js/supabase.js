@@ -1,24 +1,4 @@
 //js/supabase.js
-// ================================================
-// 🔧 Fix for Safari: LockManager polyfill
-// Safari does NOT support navigator.locks, Supabase expects it.
-// ================================================
-
-if (!("locks" in navigator)) {
-  console.warn("⚠ Safari detected — adding LockManager polyfill");
-
-  navigator.locks = {
-    request: async function (_name, callback) {
-      // просто сразу выполняем, без реальных блокировок
-      return await callback({
-        name: _name,
-        mode: "exclusive",
-        released: false,
-        release: () => {}
-      });
-    }
-  };
-}
 
 const supabaseUrl = "https://fnocjjlsqijawypgxalm.supabase.co";
 const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZub2NqamxzcWlqYXd5cGd4YWxtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQyMzI3MDIsImV4cCI6MjA3OTgwODcwMn0._-aEFX0qAumIVdmkXhZhNUiDGQhSq0HRxTo73TJKyP0";
