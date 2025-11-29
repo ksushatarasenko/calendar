@@ -1,15 +1,15 @@
-// =========================================
-// sw.js — ОДИНСТВЕННЫЙ Service Worker
-// =========================================
+// =====================================================
+// Service Worker — исправленный и оптимизированный
+// =====================================================
 
-// Имя кеша (поменяй номер при обновлении)
-const CACHE_NAME = "workcalendar-v1";
+// Меняй при каждом обновлении ресурсов
+const CACHE_NAME = "workcalendar-v5";
 
-// Какие файлы кешировать
+// Оффлайн-ресурсы (минимальный набор)
 const ASSETS = [
   "/",
   "/index.html",
-  "/css/style.css",
+  "/css/styles.css",
   "/js/app.js",
   "/js/calendar.js",
   "/js/open_day.js",
@@ -22,26 +22,25 @@ const ASSETS = [
   "/manifest.json"
 ];
 
-// =========================================
-// Установка Service Worker
-// =========================================
+// =====================================================
+// INSTALL — создаём кеш
+// =====================================================
 self.addEventListener("install", event => {
   console.log("📥 SW: install");
 
   event.waitUntil(
     caches.open(CACHE_NAME).then(cache => {
-      console.log("📦 Кеширование файлов");
+      console.log("📦 Кеширую ASSETS…");
       return cache.addAll(ASSETS);
     })
   );
 
-  self.skipWaiting(); // применить сразу
+  self.skipWaiting();
 });
 
-// =========================================
-// Активация
-// Удаляем старые кеши
-// =========================================
+// =====================================================
+// ACTIVATE — чистим старый кеш
+// =====================================================
 self.addEventListener("activate", event => {
   console.log("♻ SW: activate");
 
@@ -58,24 +57,41 @@ self.addEventListener("activate", event => {
     )
   );
 
-  self.clients.claim(); // перехватываем вкладки
+  self.clients.claim();
 });
 
-// =========================================
-// Перехват запросов
-// 1. Сначала ищем в кеше
-// 2. Если нет — качаем из сети
-// =========================================
+// =====================================================
+// FETCH — лучшая стратегия для разработки:
+// CSS / JS / HTML → network first
+// остальное → cache first
+// =====================================================
 self.addEventListener("fetch", event => {
+  const req = event.request;
+  const url = new URL(req.url);
+
+  // ---------- NETWORK FIRST для важных файлов ----------
+  const isDynamicFile =
+    url.pathname.endsWith(".css") ||
+    url.pathname.endsWith(".js") ||
+    url.pathname.endsWith(".html") ||
+    url.pathname === "/";
+
+  if (isDynamicFile) {
+    event.respondWith(
+      fetch(req)
+        .then(res => {
+          // обновляем кеш новой версией
+          const clone = res.clone();
+          caches.open(CACHE_NAME).then(cache => cache.put(req, clone));
+          return res;
+        })
+        .catch(() => caches.match(req))
+    );
+    return;
+  }
+
+  // ---------- CACHE FIRST для статики ----------
   event.respondWith(
-    caches.match(event.request).then(response => {
-      return (
-        response ||
-        fetch(event.request).catch(() =>
-          // Можно добавить offline-страницу, но пока просто failback
-          new Response("Offline", { status: 503 })
-        )
-      );
-    })
+    caches.match(req).then(cached => cached || fetch(req))
   );
 });

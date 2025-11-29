@@ -5,12 +5,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Work Calendar</title>
-    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="./css/styles.css">
     <link rel="manifest" href="manifest.json">
     <script>
-        // ====================================================================
-        // SAFARI FIX — FORCE OVERRIDE navigator.locks (required for supabase-js)
-        // ====================================================================
         (function () {
             const ua = navigator.userAgent.toLowerCase();
             const isSafari = ua.includes("safari") && !ua.includes("chrome");
@@ -34,7 +31,7 @@
     </script>
 
     <!-- XLSX — ВАРИАНТ ТОЛЬКО ОДИН! -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.19.3/xlsx.full.min.js"></script>
+    <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.19.3/xlsx.full.min.js"></script> -->
 
     <!-- Supabase -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -77,7 +74,7 @@
             <button onclick="closeModal('modalReportOutput')" class="close-btn">Закрыть</button>
         </div>
     </div>
-    <!-- modalWork -->
+    <!-- modalWork внесение смены-->
     <div id="modalWork" class="modal hidden">
         <div class="modal-window">
 
@@ -123,7 +120,7 @@
         </div>
     </div>
 
-    <!-- modalTask -->
+    <!-- modalTask внесении задачи-->
     <div id="modalTask" class="modal hidden">
         <div class="modal-window">
 
@@ -182,11 +179,11 @@
     <header class="header">
         <!-- Первая строка -->
         <div class="header-row top-row">
-            <button id="prevMonth">←</button>
+            <button id="prevMonth"><img src="./image/free-icon-arrow-left-9847479.png" alt=""></button>
 
             <div id="monthTitle">LISTOPAD 2025</div>
 
-            <button id="nextMonth">→</button>
+            <button id="nextMonth"><img src="./image/free-icon-arrow-right-1549454.png" alt=""></button>
         </div>
 
         <!-- Вторая строка -->

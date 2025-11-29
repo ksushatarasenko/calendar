@@ -1,0 +1,569 @@
+/* ============================================================
+   BASE — сброс, шрифты и переменные темы
+   ============================================================ */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: "Inter", system-ui, -apple-system, "Segoe UI", Roboto;
+    background: var(--bg);
+    color: var(--text);
+    -webkit-font-smoothing: antialiased;
+    transition: background .25s, color .25s;
+}
+
+/* ---------- LIGHT THEME VARIABLES ---------- */
+:root {
+    --bg: #e9eef5;
+    --text: #2c2f33;
+
+    /* УМЕНЬШЕННЫЕ НЕОМОРФНЫЕ ТЕНИ */
+    --neu-light: #ffffffcc;     /* раньше #ffffff */
+    --neu-dark: #b8bec8cc;      /* раньше #b8bec8 */
+
+    --neu-inset-light: #ffffffcc;
+    --neu-inset-dark: #a5acb8cc;
+
+    /* Accents */
+    --accent-blue: #3A86FF;
+    --accent-green: #37d67a;
+
+    /* Cards */
+    --card-bg: #f5f7fb;
+}
+
+/* ---------- DARK THEME ---------- */
+body.dark {
+    --bg: #1f2227;
+    --text: #e4e4e4;
+
+    --neu-light: #2a2d33cc;
+    --neu-dark: #0f1114cc;
+
+    --neu-inset-light: #3a3d44cc;
+    --neu-inset-dark: #0c0d10cc;
+
+    --card-bg: #26292f;
+    --accent-blue: #6da8ff;
+    --accent-green: #4ff599;
+}
+
+/* ============================================================
+   GLOBAL HELPERS
+   ============================================================ */
+
+.hidden {
+    display: none !important;
+}
+
+.neu-card {
+    background: var(--card-bg);
+    border-radius: 18px;
+    box-shadow:
+        5px 5px 12px var(--neu-dark),
+        -5px -5px 12px var(--neu-light);
+    transition: .25s ease;
+}
+
+.neu-card:hover {
+    transform: translateY(-2px);
+    box-shadow:
+        7px 7px 14px var(--neu-dark),
+        -7px -7px 14px var(--neu-light);
+}
+
+.neu-inset {
+    background: var(--card-bg);
+    border-radius: 14px;
+    box-shadow:
+        inset 3px 3px 8px var(--neu-inset-dark),
+        inset -3px -3px 8px var(--neu-inset-light);
+}
+
+/* ============================================================
+   HEADER — шапка календаря
+   ============================================================ */
+
+.header {
+
+    padding: 16px;
+    margin-bottom: 16px;
+    background: var(--card-bg);
+    border-radius: 0 0 22px 22px;
+    max-width: 900px;
+    margin-left: auto;
+    margin-right: auto;
+
+    box-shadow:
+        6px 6px 14px var(--neu-dark),
+        -6px -6px 14px var(--neu-light);
+}
+
+.header-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5%;
+}
+
+
+#monthTitle {
+    font-size: 24px;
+    font-weight: 800;
+    text-align: center;
+}
+#prevMonth>img,
+#nextMonth>img{
+    width: 30px;
+    border-radius: 50%;
+    cursor: pointer;
+}
+
+
+
+/* ============================================================
+   BUTTONS — кнопки + FAB
+   ============================================================ */
+
+.action-btn,
+.fab-option,
+#darkToggle {
+    background: var(--card-bg);
+    color: var(--text);
+    border: none;
+    padding: 10px 16px;
+    border-radius: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: .2s;
+
+    box-shadow:
+        4px 4px 10px var(--neu-dark),
+        -4px -4px 10px var(--neu-light);
+}
+
+.action-btn:hover,
+.fab-option:hover {
+    transform: translateY(-2px);
+}
+
+#fabMenu {
+    width: 62px;
+    height: 62px;
+    border-radius: 50%;
+    position: fixed;
+    bottom: 26px;
+    right: 24px;
+    cursor: pointer;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-size: 34px;
+    background: var(--card-bg);
+    z-index: 999;
+
+    box-shadow:
+        6px 6px 14px var(--neu-dark),
+        -6px -6px 14px var(--neu-light);
+}
+
+.fab-options {
+    position: fixed;
+    bottom: 110px;
+    right: 28px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    z-index: 998;
+}
+.fab-option {
+    font-size: 18px;
+    background-color: #6da8ff;
+}
+.fab-option:hover{
+    transform: scale(0.9);
+    color: gray;
+}
+#fabMenu{
+    background-color: #6ea6fa;
+    border-color: #6ea6fa;
+}
+#fabMenu:hover{
+    transform: scale(0.9);
+    color: gray;
+}
+
+.modal-btn{
+    background-color: #6ea6fa;
+    padding: 3px;
+    border-color: #6ea6fa;
+    margin: 4px;
+    cursor: pointer;
+}
+.modal-btn:hover{
+    transform: scale(0.9);
+    color: gray;
+}
+
+
+.fab-options.hidden {
+    display: none !important;
+}
+
+/* Кнопка экспорта */
+#exportWeekBtn {
+  border-radius: 12px;
+  border: 2px solid #ccc;
+  padding: 8px 14px;
+  background: var(--card-bg);
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+#exportWeekBtn:hover {
+  border-color: var(--accent-blue);
+  color: var(--accent-blue);
+}
+/* кнопки отчетов */
+.report-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin: 10px 0 20px;
+}
+
+.report-btn {
+    width: 100%;
+    padding: 12px 18px;
+    font-size: 17px;
+    border-radius: 10px;
+    border: 1px solid #dcdcdc;
+    background: #f7f7f7;
+    color: #222;
+    cursor: pointer;
+    text-align: left;
+    transition: 0.2s;
+}
+
+.report-btn:hover {
+    background: #ebebeb;
+}
+.close-btn {
+  width: 100%;
+  border: none;
+  padding: 12px 16px;
+  border-radius: 12px;
+  margin-top: 16px;
+  font-size: 16px;
+  font-weight: 600;
+  background: #d6d6d6;
+  color: #222;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+body.dark .close-btn {
+  background: #444;
+  color: #eee;
+}
+
+.close-btn:hover {
+  background: #c2c2c2;
+}
+
+body.dark .close-btn:hover {
+  background: #555;
+}
+#saveWork,
+#saveTask{
+    background-color: #6ea6fa;
+    padding: 6px;
+    border-radius: 12px;
+    cursor: pointer;
+}
+#saveWork:hover,
+#saveTask:hover{
+    /* background: #555; */
+    transform: scale(0.9);
+    
+}
+
+/* ============================================================
+   WEEKDAYS — заголовки дней недели
+   ============================================================ */
+
+.weekday-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 10px;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 12px;
+}
+
+.weekday {
+    text-align: center;
+    font-weight: 700;
+    color: var(--accent-blue);
+    padding: 8px 0;
+}
+
+/* ============================================================
+   CALENDAR — сетка и карточки дней
+   ============================================================ */
+
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 12px;
+    max-width: 900px;
+    margin: 12px auto;
+    padding: 0 12px;
+}
+
+.day-card {
+    min-height: 90px;
+    padding: 10px;
+    border-radius: 16px;
+    position: relative;
+    cursor: pointer;
+
+    background: var(--card-bg);
+    box-shadow:
+        5px 5px 12px var(--neu-dark),
+        -5px -5px 12px var(--neu-light);
+
+    transition: .2s;
+}
+
+.day-card:hover {
+    transform: translateY(-2px);
+    box-shadow:
+        7px 7px 14px var(--neu-dark),
+        -7px -7px 14px var(--neu-light);
+}
+
+.day-number {
+    font-weight: 700;
+    font-size: 16px;
+}
+
+.day-disabled {
+    opacity: .35;
+    pointer-events: none;
+}
+
+.day-today {
+    border: 2px solid var(--accent-blue);
+    background: var(--card-bg);
+    box-shadow:
+        0 0 12px rgba(58,134,255,.4),
+        6px 6px 14px var(--neu-dark),
+        -6px -6px 14px var(--neu-light);
+}
+
+/* WORK + TASK DATA */
+.day-info {
+    margin-top: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #156315;
+}
+
+.work-badge {
+    background: var(--accent-blue);
+    color: #fff;
+    padding: 2px 6px;
+    border-radius: 6px;
+    font-size: 11px;
+}
+
+/* TASK DOT */
+.task-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    position: absolute;
+    right: 8px;
+    bottom: 8px;
+}
+
+.task-dot.green { background: var(--accent-green); }
+.task-dot.gray { background: #888; }
+
+/* ============================================================
+   MONTH SUMMARY — низ блока месяца
+   ============================================================ */
+
+.month-summary {
+    margin: 20px auto;
+    padding: 16px;
+    max-width: 360px;
+    text-align: center;
+    font-size: 18px;
+    font-weight: 700;
+   
+
+    border-radius: 18px;
+    background: var(--card-bg);
+
+    box-shadow:
+        5px 5px 12px var(--neu-dark),
+        -5px -5px 12px var(--neu-light);
+}
+#monthSummary{
+     background-color: #6ea6fa;
+}
+/* #monthSummary:hover{
+    transform: scale(0.9);
+    color: gray;
+} */
+
+/* ============================================================
+   MODALS — окна: работа, задача, день, отчёты
+   ============================================================ */
+
+.modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,.55);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .25s;
+}
+
+.modal:not(.hidden) {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.modal-window {
+    width: 92%;
+    max-width: 440px;
+    padding: 22px;
+
+    background: var(--card-bg);
+    border-radius: 20px;
+
+    box-shadow:
+        10px 10px 22px var(--neu-dark),
+        -10px -10px 22px var(--neu-light);
+
+    transform: translateY(20px);
+    transition: .25s;
+}
+
+.modal:not(.hidden) .modal-window {
+    transform: translateY(0);
+}
+
+/* TITLE */
+.modal-title {
+    font-size: 22px;
+    font-weight: 800;
+    margin-bottom: 16px;
+    text-align: center;
+}
+
+/* CLOSE X */
+.modal-close-x {
+    position: absolute;
+    top: 12px;
+    right: 14px;
+    font-size: 24px;
+    font-weight: 700;
+    color: #d9534f;
+    cursor: pointer;
+}
+
+/* FORM */
+.form-group {
+    margin-bottom: 14px;
+    display: flex;
+    flex-direction: column;
+}
+
+input[type="text"],
+input[type="date"],
+input[type="time"],
+textarea {
+    padding: 10px 12px;
+    border-radius: 14px;
+    border: none;
+    font-size: 15px;
+
+    background: var(--card-bg);
+    color: var(--text);
+
+    box-shadow:
+        inset 3px 3px 8px var(--neu-inset-dark),
+        inset -3px -3px 8px var(--neu-inset-light);
+}
+
+textarea { min-height: 70px; resize: vertical; }
+
+/* DAY MODAL LISTS */
+.day-work-card,
+.day-task-card {
+    padding: 14px 16px;
+    margin-bottom: 14px;
+    border-radius: 16px;
+
+    background: var(--card-bg);
+    box-shadow:
+        5px 5px 12px var(--neu-dark),
+        -5px -5px 12px var(--neu-light);
+}
+
+/* ============================================================
+   REPORTS — таблицы отчётов
+   ============================================================ */
+
+.report-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+    background: var(--card-bg);
+
+    box-shadow:
+        6px 6px 14px var(--neu-dark),
+        -6px -6px 14px var(--neu-light);
+}
+
+.report-table th {
+    background: var(--accent-blue);
+    color: #fff;
+    padding: 12px;
+    text-align: left;
+}
+
+.report-table td {
+    padding: 10px 12px;
+    border-bottom: 1px solid rgba(0,0,0,.08);
+}
+
+/* DARK MODE FIXES */
+body.dark .report-table tr:nth-child(even) td {
+    background: rgba(255,255,255,.05);
+}
+
+/* ============================================================
+   RESPONSIVE — адаптивность
+   ============================================================ */
+
+@media (max-width: 480px) {
+    .calendar-grid { gap: 6px; }
+    .header-row {justify-content: centr;gap: 2px;}
+
+}

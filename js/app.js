@@ -34,24 +34,37 @@ document.addEventListener("DOMContentLoaded", () => {
     // 🔄 Свайпы влево/вправо
     // ====================================
     let touchStartX = 0;
+    let touchStartY = 0;
+    let touchEndX = 0;
+    let touchEndY = 0;
 
     document.addEventListener("touchstart", e => {
-        touchStartX = e.changedTouches[0].clientX;
+        touchStartX = e.touches[0].clientX;
+        touchStartY = e.touches[0].clientY;
     });
 
-    document.addEventListener("touchend", e => {
-        const dx = e.changedTouches[0].clientX - touchStartX;
+    document.addEventListener("touchmove", e => {
+        touchEndX = e.touches[0].clientX;
+        touchEndY = e.touches[0].clientY;
+    });
 
-        if (dx > 80) {
-            currentDate.setMonth(currentDate.getMonth() - 1);
-            renderCalendar();
+    document.addEventListener("touchend", () => {
+        const deltaX = touchEndX - touchStartX;
+        const deltaY = touchEndY - touchStartY;
+
+        // ✔ если вертикальное движение больше — это скролл
+        if (Math.abs(deltaY) > Math.abs(deltaX)) return;
+
+        // ✔ свайп вправо
+        if (deltaX > 50) {
+            prevMonth();
         }
-
-        if (dx < -80) {
-            currentDate.setMonth(currentDate.getMonth() + 1);
-            renderCalendar();
+        // ✔ свайп влево
+        if (deltaX < -50) {
+            nextMonth();
         }
     });
+
 
     // ====================================
     // ➕ FAB
