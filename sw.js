@@ -1,57 +1,81 @@
-const CACHE_NAME = "calendar-v1";
+// =========================================
+// sw.js — ОДИНСТВЕННЫЙ Service Worker
+// =========================================
 
-const FILES_TO_CACHE = [
-    "/",
-    "/index.html",
+// Имя кеша (поменяй номер при обновлении)
+const CACHE_NAME = "workcalendar-v1";
 
-    // CSS
-    "/css/style.css",
-
-    // JS
-    "/js/app.js",
-    "/js/calendar.js",
-    "/js/export_to_excel.js",
-    "/js/open_day.js",
-    "/js/reports.js",
-    "/js/save_task.js",
-    "/js/supabase.js",
-    "/js/ui.js",
-
-    // Дополнительные ресурсы если нужны
-    "/manifest.json"
+// Какие файлы кешировать
+const ASSETS = [
+  "/",
+  "/index.html",
+  "/css/style.css",
+  "/js/app.js",
+  "/js/calendar.js",
+  "/js/open_day.js",
+  "/js/save_task.js",
+  "/js/reports.js",
+  "/js/supabase.js",
+  "/js/export_to_exel.js",
+  "/js/ui.js",
+  "/js/libs/xlsx.full.min.js",
+  "/manifest.json"
 ];
 
-// ---- УСТАНОВКА SERVICE WORKER ----
-self.addEventListener("install", (event) => {
-    event.waitUntil(
-        caches.open(CACHE_NAME).then((cache) => {
-            return cache.addAll(FILES_TO_CACHE);
-        })
-    );
-    self.skipWaiting();
+// =========================================
+// Установка Service Worker
+// =========================================
+self.addEventListener("install", event => {
+  console.log("📥 SW: install");
+
+  event.waitUntil(
+    caches.open(CACHE_NAME).then(cache => {
+      console.log("📦 Кеширование файлов");
+      return cache.addAll(ASSETS);
+    })
+  );
+
+  self.skipWaiting(); // применить сразу
 });
 
-// ---- АКТИВАЦИЯ ----
-self.addEventListener("activate", (event) => {
-    event.waitUntil(
-        caches.keys().then((keys) =>
-            Promise.all(
-                keys.map((key) => {
-                    if (key !== CACHE_NAME) {
-                        return caches.delete(key);
-                    }
-                })
-            )
+// =========================================
+// Активация
+// Удаляем старые кеши
+// =========================================
+self.addEventListener("activate", event => {
+  console.log("♻ SW: activate");
+
+  event.waitUntil(
+    caches.keys().then(keys =>
+      Promise.all(
+        keys
+          .filter(key => key !== CACHE_NAME)
+          .map(key => {
+            console.log("🗑 Удаляю старый кеш:", key);
+            return caches.delete(key);
+          })
+      )
+    )
+  );
+
+  self.clients.claim(); // перехватываем вкладки
+});
+
+// =========================================
+// Перехват запросов
+// 1. Сначала ищем в кеше
+// 2. Если нет — качаем из сети
+// =========================================
+self.addEventListener("fetch", event => {
+  event.respondWith(
+    caches.match(event.request).then(response => {
+      return (
+        response ||
+        fetch(event.request).catch(() =>
+          // Можно добавить offline-страницу, но пока просто failback
+          new Response("Offline", { status: 503 })
         )
-    );
-    self.clients.claim();
-});
-
-// ---- ОБРАБОТКА ЗАПРОСОВ ----
-self.addEventListener("fetch", (event) => {
-    event.respondWith(
-        caches.match(event.request).then((response) => {
-            return response || fetch(event.request);
-        })
-    );
+      );
+    })
+  );
 });

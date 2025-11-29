@@ -1,4 +1,4 @@
-//js/app.js
+
 // ===============================
 // app.js — ГЛАВНЫЙ ФАЙЛ ПРИЛОЖЕНИЯ
 // ===============================
@@ -6,7 +6,15 @@
 document.addEventListener("DOMContentLoaded", () => {
     console.log("🚀 Приложение загружено");
 
-    // Рендер календаря при загрузке
+    // восстановление темы
+    const savedTheme = localStorage.getItem("theme");
+    if (savedTheme === "dark") {
+        document.body.classList.add("dark");
+    }
+
+    // ----------------------------------------
+    // 📅 Рендер календаря при загрузке
+    // ----------------------------------------
     renderCalendar();
 
     // ====================================
@@ -22,8 +30,9 @@ document.addEventListener("DOMContentLoaded", () => {
         renderCalendar();
     };
 
-    // Свайпы (лево/право)
-
+    // ====================================
+    // 🔄 Свайпы влево/вправо
+    // ====================================
     let touchStartX = 0;
 
     document.addEventListener("touchstart", e => {
@@ -44,9 +53,8 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
-
     // ====================================
-    // 🔵 FAB меню (кнопка "+")
+    // ➕ FAB
     // ====================================
     let fabOpen = false;
 
@@ -60,12 +68,10 @@ document.addEventListener("DOMContentLoaded", () => {
         fabOptions.classList.toggle("hidden", !fabOpen);
     };
 
-    // Удобный хелпер — ставим сегодняшнюю дату
-    function setSelectedToday() {
+    const setSelectedToday = () => {
         selectedDate = new Date().toISOString().slice(0, 10);
-    }
+    };
 
-    // Добавить смену
     fabAddWork.onclick = () => {
         setSelectedToday();
         closeModal("modalDay");
@@ -74,7 +80,6 @@ document.addEventListener("DOMContentLoaded", () => {
         fabOpen = false;
     };
 
-    // Добавить задачу
     fabAddTask.onclick = () => {
         setSelectedToday();
         closeModal("modalDay");
@@ -84,16 +89,7 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
     // ====================================
-    // 🔵 Кнопка "Отчёты"
-    // ====================================
-    document.getElementById("reportsBtn").onclick = () => {
-        openModal("modalReports");
-        fabOptions.classList.add("hidden");
-        fabOpen = false;
-    };
-
-    // ====================================
-    // 🔵 Экспорт недели в Excel
+    // 📤 Экспорт недели
     // ====================================
     const btnWeeklyExcel = document.getElementById("exportWeekBtn");
     if (btnWeeklyExcel) {
@@ -102,96 +98,33 @@ document.addEventListener("DOMContentLoaded", () => {
             exportWeekToExcelFromDate(base);
         };
     }
+
+    // ====================================
+    // 🌙 ТЕМА
+    // ====================================
+    const darkToggleBtn = document.getElementById("darkToggle");
+
+    if (darkToggleBtn) {
+        darkToggleBtn.addEventListener("click", () => {
+            document.body.classList.toggle("dark");
+
+            localStorage.setItem(
+                "theme",
+                document.body.classList.contains("dark") ? "dark" : "light"
+            );
+        });
+    }
+    else {
+        console.warn("❗ Кнопка darkToggle не найдена");
+    }
+
+    // ====================================
+    // 📄 Отчёты
+    // ====================================
+    document.getElementById("reportsBtn").onclick = () => {
+        openModal("modalReports");
+        fabOptions.classList.add("hidden");
+        fabOpen = false;
+    };
 });
 
-
-// ===================================================
-// 🔵 Утилита — расчёт часов
-// ===================================================
-function calculateHours(start, end) {
-    if (!start || !end) return 0;
-    const [h1, m1] = start.split(":").map(Number);
-    const [h2, m2] = end.split(":").map(Number);
-    const diff = (h2 - h1) + (m2 - m1) / 60;
-    return diff.toFixed(1);
-}
-
-
-// ===================================================
-// 🔵 КНОПКА "Сохранить смену"
-// ===================================================
-document.getElementById("saveWork").onclick = async () => {
-    const entry = {
-        id: document.getElementById("workId").value || null,
-        date: document.getElementById("workDate").value || selectedDate,
-        start_time: document.getElementById("workStart").value,
-        end_time: document.getElementById("workEnd").value,
-        place: document.getElementById("workPlace").value,
-        partner: document.getElementById("workPartner").value
-    };
-
-    entry.total_hours = calculateHours(entry.start_time, entry.end_time);
-
-    await saveWorkEntry(entry);
-    closeModal("modalWork");
-    renderCalendar();
-};
-
-
-// ===================================================
-// 🔵 КНОПКА "Удалить смену"
-// ===================================================
-document.getElementById("deleteWork").onclick = async () => {
-    const id = document.getElementById("workId").value;
-    if (!id) return;
-
-    if (confirm("Удалить смену?")) {
-        await deleteWorkEntry(id);
-        closeModal("modalWork");
-        renderCalendar();
-    }
-};
-
-
-// ===================================================
-// 🔵 КНОПКА "Сохранить задачу"
-// ===================================================
-document.getElementById("saveTask").onclick = async () => {
-    const task = {
-        id: document.getElementById("taskId").value || null,
-        date: document.getElementById("taskDate").value || selectedDate,
-        time: document.getElementById("taskTime").value,
-        title: document.getElementById("taskTitle").value,
-        description: document.getElementById("taskDescription").value
-    };
-
-    await saveTaskToDB(task);
-    closeModal("modalTask");
-    renderCalendar();
-};
-
-
-// ===================================================
-// 🔵 КНОПКА "Удалить задачу"
-// ===================================================
-document.getElementById("deleteTask").onclick = async () => {
-    const id = document.getElementById("taskId").value;
-    if (!id) return;
-
-    if (confirm("Удалить задачу?")) {
-        await deleteTask(id);
-        closeModal("modalTask");
-        renderCalendar();
-    }
-};
-
-// переключатель темы
-document.getElementById("themeToggle").onclick = () => {
-    document.body.classList.toggle("dark");
-    localStorage.setItem("theme", document.body.classList.contains("dark") ? "dark" : "light");
-};
-
-// загрузка темы при старте
-if (localStorage.getItem("theme") === "dark") {
-    document.body.classList.add("dark");
-}
