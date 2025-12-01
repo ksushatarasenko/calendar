@@ -1,25 +1,31 @@
 
-// ===============================
-// app.js — ГЛАВНЫЙ ФАЙЛ ПРИЛОЖЕНИЯ
-// ===============================
+// app.js — главный файл приложения
+document.addEventListener("DOMContentLoaded", async () => {
+    console.log("🚀 app.js loaded");
 
-document.addEventListener("DOMContentLoaded", () => {
-    console.log("🚀 Приложение загружено");
-
-    // восстановление темы
-    const savedTheme = localStorage.getItem("theme");
-    if (savedTheme === "dark") {
-        document.body.classList.add("dark");
+    // 1. Пробуем обработать URL восстановления
+    const recovered = await handleRecoveryFromURL();
+    if (recovered) {
+        console.log("⏳ Recovery in progress");
+        return;
     }
 
-    // ----------------------------------------
-    // 📅 Рендер календаря при загрузке
-    // ----------------------------------------
-    renderCalendar();
+    // 2. Обычная проверка авторизации
+    const ok = await checkAuth();
+    if (!ok) return;
 
-    // ====================================
-    // 🔵 Переключение месяцев
-    // ====================================
+    console.log("✅ User authorized — continue app init");
+
+    // === Тема ===
+    const savedTheme = localStorage.getItem("theme");
+    if (savedTheme === "dark") document.body.classList.add("dark");
+
+    // === Календарь ===
+    if (typeof renderCalendar === "function") {
+        renderCalendar();
+    }
+
+    // === Переключение месяцев ===
     document.getElementById("prevMonth").onclick = () => {
         currentDate.setMonth(currentDate.getMonth() - 1);
         renderCalendar();
@@ -30,114 +36,37 @@ document.addEventListener("DOMContentLoaded", () => {
         renderCalendar();
     };
 
-    // ====================================
-    // 🔄 Свайпы влево/вправо
-    // ====================================
-    let touchStartX = 0;
-    let touchStartY = 0;
-    let touchEndX = 0;
-    let touchEndY = 0;
-
-    document.addEventListener("touchstart", e => {
-        touchStartX = e.touches[0].clientX;
-        touchStartY = e.touches[0].clientY;
-    });
-
-    document.addEventListener("touchmove", e => {
-        touchEndX = e.touches[0].clientX;
-        touchEndY = e.touches[0].clientY;
-    });
-
-    document.addEventListener("touchend", () => {
-        const deltaX = touchEndX - touchStartX;
-        const deltaY = touchEndY - touchStartY;
-
-        // ✔ если вертикальное движение больше — это скролл
-        if (Math.abs(deltaY) > Math.abs(deltaX)) return;
-
-        // ✔ свайп вправо
-        if (deltaX > 50) {
-            prevMonth();
-        }
-        // ✔ свайп влево
-        if (deltaX < -50) {
-            nextMonth();
-        }
-    });
-
-
-    // ====================================
-    // ➕ FAB
-    // ====================================
+    // === FAB ===
     let fabOpen = false;
-
     const fabMenu = document.getElementById("fabMenu");
     const fabOptions = document.getElementById("fabMenuOptions");
-    const fabAddWork = document.getElementById("fabAddWork");
-    const fabAddTask = document.getElementById("fabAddTask");
 
     fabMenu.onclick = () => {
         fabOpen = !fabOpen;
         fabOptions.classList.toggle("hidden", !fabOpen);
     };
 
-    const setSelectedToday = () => {
-        selectedDate = new Date().toISOString().slice(0, 10);
+    document.getElementById("fabAddWork").onclick = () => {
+        const date = new Date().toISOString().slice(0,10);
+        openWorkModal({ date });
     };
 
-    fabAddWork.onclick = () => {
-        setSelectedToday();
-        closeModal("modalDay");
-        openWorkModal({ date: selectedDate });
-        fabOptions.classList.add("hidden");
-        fabOpen = false;
+    document.getElementById("fabAddTask").onclick = () => {
+        const date = new Date().toISOString().slice(0,10);
+        openTaskModal({ date });
     };
 
-    fabAddTask.onclick = () => {
-        setSelectedToday();
-        closeModal("modalDay");
-        openTaskModal({ date: selectedDate });
-        fabOptions.classList.add("hidden");
-        fabOpen = false;
-    };
-
-    // ====================================
-    // 📤 Экспорт недели
-    // ====================================
-    const btnWeeklyExcel = document.getElementById("exportWeekBtn");
-    if (btnWeeklyExcel) {
-        btnWeeklyExcel.onclick = () => {
-            const base = selectedDate || new Date().toISOString().slice(0, 10);
-            exportWeekToExcelFromDate(base);
-        };
-    }
-
-    // ====================================
-    // 🌙 ТЕМА
-    // ====================================
-    const darkToggleBtn = document.getElementById("darkToggle");
-
-    if (darkToggleBtn) {
-        darkToggleBtn.addEventListener("click", () => {
-            document.body.classList.toggle("dark");
-
-            localStorage.setItem(
-                "theme",
-                document.body.classList.contains("dark") ? "dark" : "light"
-            );
-        });
-    }
-    else {
-        console.warn("❗ Кнопка darkToggle не найдена");
-    }
-
-    // ====================================
-    // 📄 Отчёты
-    // ====================================
+    // === Отчёты ===
     document.getElementById("reportsBtn").onclick = () => {
         openModal("modalReports");
         fabOptions.classList.add("hidden");
-        fabOpen = false;
+    };
+
+    // === Тёмная тема ===
+    document.getElementById("darkToggle").onclick = () => {
+        document.body.classList.toggle("dark");
+        localStorage.setItem("theme",
+            document.body.classList.contains("dark") ? "dark" : "light"
+        );
     };
 });
-

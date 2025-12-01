@@ -130,4 +130,3 @@ async function showMonthlyTasksReport() {
 
 document.getElementById("btnReportWork").onclick = showMonthlyWorkReport;
 document.getElementById("btnReportTasks").onclick = showMonthlyTasksReport;
-

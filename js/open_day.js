@@ -197,3 +197,5 @@ async function toggleTaskCompleted(id, currentStatus) {
 }
 
 window.toggleTaskCompleted = toggleTaskCompleted;
+
+
