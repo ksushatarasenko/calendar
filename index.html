@@ -50,8 +50,24 @@
 
             <button id="loginBtn" class="modal-btn edit">Войти</button>
             <button id="logoutBtn" class="modal-btn delete">Выйти</button>
+            <button id="openRegister" class="modal-btn edit">Регистрация</button>
         </div>
     </div>
+    <!-- модалку регистрации -->
+    <div id="registerModal" class="modal hidden">
+        <div class="modal-window" style="max-width:350px;">
+            <h2>🆕 Регистрация</h2>
+
+            <input id="regEmail" type="email" placeholder="Email" class="form-input">
+            <input id="regPass" type="password" placeholder="Пароль" class="form-input">
+            <input id="regPass2" type="password" placeholder="Повторите пароль" class="form-input">
+
+            <button id="registerBtn" class="modal-btn edit">Создать аккаунт</button>
+            <button class="modal-btn cancel" onclick="closeModal('registerModal')">Отмена</button>
+        </div>
+        
+    </div>
+
     <!-- modalReports — выбор отчёта -->
     <div id="modalReports" class="modal hidden">
         <div class="modal-window modal-panel">

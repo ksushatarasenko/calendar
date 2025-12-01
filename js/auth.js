@@ -46,6 +46,50 @@ async function handleRecoveryFromURL() {
 
 
 window.handleRecoveryFromURL = handleRecoveryFromURL;
+// функцию registerUser() регистрирует нового пользователя
+async function registerUser() {
+    const email = document.getElementById("regEmail").value.trim();
+    const pass1 = document.getElementById("regPass").value;
+    const pass2 = document.getElementById("regPass2").value;
+
+    if (!email || !pass1) {
+        alert("Введите email и пароль");
+        return;
+    }
+
+    if (pass1 !== pass2) {
+        alert("Пароли не совпадают");
+        return;
+    }
+
+    try {
+        console.log("📨 Отправляем запрос на регистрацию...");
+
+        const { data, error } = await supabase.auth.signUp({
+            email,
+            password: pass1
+        });
+
+        if (error) {
+            console.error("❌ Ошибка регистрации:", error);
+            alert(error.message);
+            return;
+        }
+
+        console.log("🎉 Пользователь зарегистрирован:", data);
+
+        alert("Аккаунт создан! Теперь войдите.");
+
+        closeModal("registerModal");
+        openModal("loginModal");
+
+    } catch (err) {
+        console.error("🔥 Ошибка registerUser():", err);
+        alert("Ошибка регистрации");
+    }
+}
+await supabase.auth.signInWithPassword({ email, password: pass1 });
+
 
 
 // -------------------------------------------
