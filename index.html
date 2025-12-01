@@ -182,6 +182,28 @@
             <div class="modal-close-x" onclick="closeModal('modalDay')">✖</div>
         </div>
     </div>
+    <!-- modalDay При нажатии на Экспорт: -->
+    <div id="modalExport" class="modal hidden">
+        <div class="modal-window" style="max-width:350px;">
+
+            <div class="modal-close-x" onclick="closeModal('modalExport')">✖</div>
+
+            <h2>Экспорт отчёта</h2>
+
+            <div class="form-group">
+                <label>От:</label>
+                <input type="date" id="exportFrom">
+            </div>
+
+            <div class="form-group">
+                <label>До:</label>
+                <input type="date" id="exportTo">
+            </div>
+
+            <button id="exportDownloadBtn" class="modal-btn edit">📤 Скачать Excel</button>
+        </div>
+    </div>
+
 
     <!-- ==================== UI ==================== -->
     <!-- HEADER управляется:
@@ -200,6 +222,7 @@
         <!-- Вторая строка -->
         <div class="header-row bottom-row">
             <button id="exportWeekBtn">📤 Экспорт</button>
+
             <button id="darkToggle">🌙</button>
         </div>
 

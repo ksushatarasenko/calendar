@@ -9,7 +9,9 @@ document.addEventListener("DOMContentLoaded", async () => {
         console.log("⏳ Recovery in progress");
         return;
     }
-
+window.addEventListener("error", e => {
+    console.error("🔥 GLOBAL ERROR:", e.message, e.filename, e.lineno);
+});
     // 2. Обычная проверка авторизации
     const ok = await checkAuth();
     if (!ok) return;
@@ -24,6 +26,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (typeof renderCalendar === "function") {
         renderCalendar();
     }
+
+    console.log("🟩 ДОШЛИ ДО ПОСЛЕ renderCalendar()");
 
     // === Переключение месяцев ===
     document.getElementById("prevMonth").onclick = () => {
@@ -47,12 +51,12 @@ document.addEventListener("DOMContentLoaded", async () => {
     };
 
     document.getElementById("fabAddWork").onclick = () => {
-        const date = new Date().toISOString().slice(0,10);
+        const date = new Date().toISOString().slice(0, 10);
         openWorkModal({ date });
     };
 
     document.getElementById("fabAddTask").onclick = () => {
-        const date = new Date().toISOString().slice(0,10);
+        const date = new Date().toISOString().slice(0, 10);
         openTaskModal({ date });
     };
 
@@ -69,4 +73,42 @@ document.addEventListener("DOMContentLoaded", async () => {
             document.body.classList.contains("dark") ? "dark" : "light"
         );
     };
+    // === Экспорт недели в Excel ===
+    console.log("🟩 начался блок назначения обработчиков");
+    // === Проверка реакции кнопки Экспорт ===
+    const exportBtn = document.getElementById("exportWeekBtn");
+
+    if (exportBtn) {
+        exportBtn.addEventListener("click", () => {
+            console.log("🟦🟦🟦 КНОПКА ЭКСПОРТ НАЖАТА! 🟦🟦🟦");
+        });
+    } else {
+        console.error("❌ exportWeekBtn НЕ НАЙДЕН В DOM!");
+    }
+
+    if (exportBtn) {
+        exportBtn.onclick = () => {
+            console.log("📤 Экспорт: кнопка нажата");
+
+            const today = new Date().toISOString().slice(0, 10);
+            console.log("📤 Запускаем exportWeekToExcelFromDate:", today);
+
+            if (typeof exportWeekToExcelFromDate !== "function") {
+                console.error("❌ Функция exportWeekToExcelFromDate не найдена!");
+                return;
+            }
+
+            exportWeekToExcelFromDate(today);
+        };
+    } else {
+        console.error("❌ Кнопка exportWeekBtn не найдена в DOM");
+    }
+
+    // Кнопка открывает модалку экспорта
+    document.getElementById("exportWeekBtn").onclick = () => {
+    console.log("📤 Открываем экспорт модалку");
+    openModal("modalExport");
+};
+
+
 });
