@@ -41,21 +41,28 @@
 <body>
     <!-- ====== МОДАЛКИ таблица, которую создаёт reports.js.======== -->
     <!-- =========== окно авторизации =========== -->
+    <!-- Модалка логина -->
     <div id="loginModal" class="modal hidden">
-        <div class="modal-window" style="max-width:350px;">
+        <div class="modal-window">
             <h2>🔐 Вход</h2>
 
             <input id="loginEmail" type="email" placeholder="Email" class="form-input">
-            <input id="loginPass" type="password" placeholder="Пароль" class="form-input">
+            <input id="loginPassword" type="password" placeholder="Пароль" class="form-input">
 
             <button id="loginBtn" class="modal-btn edit">Войти</button>
-            <button id="logoutBtn" class="modal-btn delete">Выйти</button>
-            <button id="openRegister" class="modal-btn edit">Регистрация</button>
+
+            <button id="openRegisterBtn" class="modal-btn">
+                Регистрация
+            </button>
+
+            <button id="logoutBtn" class="modal-btn cancel">Выйти</button>
         </div>
     </div>
-    <!-- модалку регистрации -->
+
+
+    <!-- Модалка регистрации -->
     <div id="registerModal" class="modal hidden">
-        <div class="modal-window" style="max-width:350px;">
+        <div class="modal-window">
             <h2>🆕 Регистрация</h2>
 
             <input id="regEmail" type="email" placeholder="Email" class="form-input">
@@ -63,10 +70,14 @@
             <input id="regPass2" type="password" placeholder="Повторите пароль" class="form-input">
 
             <button id="registerBtn" class="modal-btn edit">Создать аккаунт</button>
-            <button class="modal-btn cancel" onclick="closeModal('registerModal')">Отмена</button>
+
+            <button id="backToLoginBtn" class="modal-btn cancel">
+                Назад
+            </button>
         </div>
-        
     </div>
+
+
 
     <!-- modalReports — выбор отчёта -->
     <div id="modalReports" class="modal hidden">
@@ -263,8 +274,9 @@
 
     <!-- Остальные JS -->
     <script defer src="js/supabase.js"></script> <!-- работа с БД Supabase -->
-    <script defer src="js/auth.js"></script> <!-- логин / логаут / восстановление пароля -->
+
     <script defer src="js/ui.js"></script> <!-- управление окнами -->
+    <script defer src="js/auth.js"></script> <!-- логин / логаут / восстановление пароля -->
 
     <script defer src="js/calendar.js"></script> <!-- отрисовка календаря  -->
     <script defer src="js/save_task.js"></script> <!-- логика сохранения -->

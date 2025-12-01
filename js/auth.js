@@ -1,188 +1,226 @@
+// =========================
+//  AUTH.JS — авторизация
+// =========================
+
+console.log("🔐 auth.js loaded");
+
+
 // ===========================================
-// auth.js — Этот файл отвечает за: вход/выход,проверку авторизации, восстановление пароля, показ модальных окон
+//  ВОССТАНОВЛЕНИЕ СЕССИИ ПО magic link
 // ===========================================
-console.log("AUTH FILE LOADED!");
-// ---- Универсальный redirect определяет куда Supabase должен вернуть пользователя после входа или восстановления пароля.----
-function getRedirectURL() {
-    // Вариант 1 — GitHub Pages
-    const origin = window.location.origin;
-
-    if (origin.includes("github.io")) {
-        return origin + "/work_calendar/";// Возвращаем: https://имя.github.io/work_calendar/
-    }
-    // Вариант 2 — локальный сервер
-    return "http://127.0.0.1:5500/";
-}
-
-
-// -------------------------------------------
-// 🔄 Восстановление пароля (PKCE) — правильный обработчик
-// -------------------------------------------
 async function handleRecoveryFromURL() {
-    const url = window.location.href; //является ли URL ссылкой для восстановления
+    const hash = window.location.hash.substring(1);
+    const params = new URLSearchParams(hash);
 
-    // ищем type=recovery, 
-    if (!url.includes("type=recovery")) return false;
+    const type = params.get("type");
+    const access_token = params.get("access_token");
 
-    console.log("🔁 Recovery URL detected:", url);
+    if (type === "recovery" && access_token) {
+        console.log("🔐 Magic link recovery");
 
-    // Передаём ВЕСЬ URL, а НЕ hash
-    const { data, error } = await supabaseClient.auth.
-        // Если да — вызываем: модалку смены пароля
-        exchangeCodeForSession(url);
-
-    if (error) {
-        console.error("❌ exchangeCodeForSession error:", error);
-        alert("Ошибка восстановления: " + error.message);
-        return false;
-        //Если нет type=recovery → функция просто возвращает false.
-    }
-
-    console.log("🔐 Recovery session OK:", data);
-    // Показываем окно смены пароля, В этот момент пользователь уже авторизован временно, и может менять пароль.
-    showNewPasswordModal();
-    return true;
-}
-
-
-window.handleRecoveryFromURL = handleRecoveryFromURL;
-// функцию registerUser() регистрирует нового пользователя
-async function registerUser() {
-    const email = document.getElementById("regEmail").value.trim();
-    const pass1 = document.getElementById("regPass").value;
-    const pass2 = document.getElementById("regPass2").value;
-
-    if (!email || !pass1) {
-        alert("Введите email и пароль");
-        return;
-    }
-
-    if (pass1 !== pass2) {
-        alert("Пароли не совпадают");
-        return;
-    }
-
-    try {
-        console.log("📨 Отправляем запрос на регистрацию...");
-
-        const { data, error } = await supabase.auth.signUp({
-            email,
-            password: pass1
+        await supabaseClient.auth.setSession({
+            access_token,
+            refresh_token: params.get("refresh_token")
         });
 
-        if (error) {
-            console.error("❌ Ошибка регистрации:", error);
-            alert(error.message);
-            return;
-        }
-
-        console.log("🎉 Пользователь зарегистрирован:", data);
-
-        alert("Аккаунт создан! Теперь войдите.");
-
-        closeModal("registerModal");
-        openModal("loginModal");
-
-    } catch (err) {
-        console.error("🔥 Ошибка registerUser():", err);
-        alert("Ошибка регистрации");
+        return true;
     }
+    return false;
 }
-await supabase.auth.signInWithPassword({ email, password: pass1 });
 
 
 
-// -------------------------------------------
-// 🪪 Проверка авторизации, Проверка: пользователь вошёл или нет.
-// -------------------------------------------
+// ===========================
+//   Проверка авторизации
+// ===========================
 async function checkAuth() {
-    console.log("🔍 Проверка сессии...");
-    const { data, error } = await supabaseClient.auth.getSession();// Получаем активную сессию, Если пользователь не вошёл → сессии нет.
+    const { data: { session } } = await supabaseClient.auth.getSession();
 
-    console.log("📦 Ответ getSession():", data);
-    if (error) console.error("❌ Ошибка getSession():", error);
-    // Если сессии нет, показываем окно логина:
-    if (!data.session) {
-        console.log("🚫 Сессия отсутствует — показываем loginModal");
+    console.log("🔍 Ответ getSession():", { session });
+
+    if (!session) {
+        console.warn("⚠ Нет сессии — открываю login modal");
         document.getElementById("loginModal").classList.remove("hidden");
         return false;
-        // Календарь не загружается, пока пользователь не войдёт.
     }
-    // Если пользователь авторизован, сохраняем данные в глобальную переменную
-    console.log("🟢 Сессия найдена. Пользователь:", data.session.user);
-    window.currentUser = data.session.user;
-    document.getElementById("loginModal").classList.add("hidden");
 
+    window.currentUser = session.user;
+
+    console.log("🟢 СЕССИЯ ОК, USER:", session.user);
     return true;
 }
-window.checkAuth = checkAuth;
 
 
-// -------------------------------------------
-// 🔐 Модалка смены пароля, Эта функция перерисовывает содержимое модального окна.
-// -------------------------------------------
-function showNewPasswordModal() {
-    const modal = document.getElementById("loginModal");
 
-    modal.innerHTML = `
-        <div class="modal-window" style="max-width:350px;">
-            <h2>🔐 Новый пароль</h2>
-            <input id="newPass" type="password" placeholder="Введите новый пароль" class="form-input">
-            <button id="resetPassBtn" class="modal-btn edit">Сменить пароль</button>
-        </div>
-    `;
+// ===========================
+//   РЕГИСТРАЦИЯ (Единственная правильная версия)
+// ===========================
+async function registerUser(email, password) {
+    console.log("► registerUser:", email);
 
-    modal.classList.remove("hidden");
+    // вызов signUp
+    const { data, error } = await supabaseClient.auth.signUp({
+        email,
+        password
+    });
 
-    document.getElementById("resetPassBtn").onclick = async () => {
-        const newPass = document.getElementById("newPass").value.trim();
+    if (error) {
+        console.error("❌ signUp error:", error);
+        return { error };
+    }
 
-        if (!newPass) return alert("Введите пароль");
+    console.log("✔ supabase.auth.signUp:", data);
 
-        const { error } = await supabaseClient.auth.updateUser({ password: newPass });
+    // пробуем создать профиль в таблице
+    if (data.user) {
+        const profile = {
+            id: data.user.id,
+            email: data.user.email,
+            full_name: null,
+            avatar_url: null
+        };
 
-        if (error) return alert("Ошибка: " + error.message);
+        const { error: pErr } = await supabaseClient
+            .from("profiles")
+            .insert([profile]);
 
-        alert("Пароль обновлён!");
-        window.location.href = getRedirectURL();
-    };
+        if (pErr) {
+            console.warn("⚠ Профиль НЕ создан:", pErr);
+            return { user: data.user, warning: pErr };
+        }
+    }
+
+    return { user: data.user };
 }
 
 
-// -------------------------------------------
-// 🚪 Логин / Логаут
-// -------------------------------------------
-document.addEventListener("DOMContentLoaded", () => {
-    const loginEmail = document.getElementById("loginEmail");
-    const loginPass = document.getElementById("loginPass");
 
-    document.getElementById("loginBtn").onclick = async () => {
-    const email = loginEmail.value.trim();
-    const pass  = loginPass.value.trim();
-
-    console.log("🔐 Попытка входа:", email);
-
-    const result = await supabaseClient.auth.signInWithPassword({
+// ===========================
+//         LOGIN
+// ===========================
+async function loginUser(email, password) {
+    const { data, error } = await supabaseClient.auth.signInWithPassword({
         email,
-        password: pass
+        password
     });
 
-    console.log("📩 Ответ Supabase:", result);
-
-    if (result.error) {
-        alert("Ошибка входа: " + result.error.message);
-        return;
+    if (error) {
+        alert("Ошибка входа: " + error.message);
+        return false;
     }
 
-    console.log("✅ Вход успешен, перезагружаем страницу для загрузки сессии");
-    setTimeout(() => location.reload(), 300);
-};
+    console.log("🔑 ЛОГИН успешен:", data.user);
+    document.getElementById("loginModal").classList.add("hidden");
+    return true;
+}
 
 
 
+// ===========================
+//         LOGOUT
+// ===========================
+async function logoutUser() {
+    await supabaseClient.auth.signOut();
+    location.reload();
+}
 
-    document.getElementById("logoutBtn").onclick = async () => {
-        await supabaseClient.auth.signOut();
-        location.reload();
-    };
+
+
+// ===============================
+//  Назначение обработчиков кнопок
+// ===============================
+console.log("🔍 DEBUG START — проверяем DOM");
+
+// Проверяем модалку
+console.log("registerModal:", document.getElementById("registerModal"));
+
+// Проверяем кнопку REGISTER
+console.log("registerBtn:", document.getElementById("registerBtn"));
+
+// Проверяем input-поля регистрации
+console.log("regEmail:", document.getElementById("regEmail"));
+console.log("regPass:", document.getElementById("regPass"));
+console.log("regPass2:", document.getElementById("regPass2"));
+
+// Проверяем login кнопки
+console.log("loginBtn:", document.getElementById("loginBtn"));
+console.log("logoutBtn:", document.getElementById("logoutBtn"));
+
+// Проверяем порядок загрузки всех JS файлов
+console.log("🧩 JS LOADED ORDER CHECK - if something is undefined → ошибка в загрузке");
+
+// ===============================
+//  Назначение обработчиков кнопок
+// ===============================
+document.addEventListener("DOMContentLoaded", () => {
+    console.log("🔧 Назначаем обработчики кнопок LOGIN / LOGOUT / REGISTER");
+
+    // 🔹 LOGIN
+    const loginBtn = document.getElementById("loginBtn");
+    if (loginBtn) {
+        loginBtn.onclick = async () => {
+            console.log("▶ ЛОГИН");
+
+            const email = loginEmail.value.trim();
+            const pass  = loginPassword.value.trim();
+
+            await loginUser(email, pass);
+        };
+    }
+
+    // 🔹 LOGOUT
+    const logoutBtn = document.getElementById("logoutBtn");
+    if (logoutBtn) {
+        logoutBtn.onclick = async () => {
+            console.log("▶ ВЫЙТИ");
+            await logoutUser();
+        };
+    }
+
+    // 🔹 OPEN REGISTER MODAL
+    const openRegisterBtn = document.getElementById("openRegisterBtn");
+    if (openRegisterBtn) {
+        openRegisterBtn.onclick = () => {
+            console.log("▶ Открываю окно регистрации");
+            openModal("registerModal");
+        };
+    }
+
+    // 🔹 BACK TO LOGIN
+    const backToLoginBtn = document.getElementById("backToLoginBtn");
+    if (backToLoginBtn) {
+        backToLoginBtn.onclick = () => {
+            console.log("▶ Назад к логину");
+            closeModal("registerModal");
+            openModal("loginModal");
+        };
+    }
+
+    // 🔹 REGISTER
+    const regBtn = document.getElementById("registerBtn");
+    if (regBtn) {
+        regBtn.onclick = async () => {
+            console.log("▶ РЕГИСТРАЦИЯ");
+
+            const email = regEmail.value.trim();
+            const pass  = regPass.value.trim();
+            const pass2 = regPass2.value.trim();
+
+            if (!email) return alert("Введите email");
+            if (!pass) return alert("Введите пароль");
+            if (pass !== pass2) return alert("Пароли не совпадают");
+
+            const res = await registerUser(email, pass);
+            console.log("registerUser:", res);
+
+            if (res.error) {
+                alert("Ошибка: " + res.error.message);
+            } else {
+                alert("✔ Пользователь создан!");
+                closeModal("registerModal");
+            }
+        };
+    }
 });
+
+
