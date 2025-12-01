@@ -1,5 +1,6 @@
 // обработчик для кнопки saveWork
 document.addEventListener("DOMContentLoaded", () => {
+    console.log("save_work.js загружен");
     document.getElementById("saveWork").onclick = async () => {
         // Проверки на существование каждого элемента
         const workDate = document.getElementById("workDate");
@@ -33,15 +34,28 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         // Собираем данные из формы
-        const workEntry = {
-            date: workDate.value,
-            start_time: workStart.value,
-            end_time: workEnd.value,
-            place: workPlace.value,
-            partner: workPartner.value
-        };
+        const idValue = document.getElementById("workId").value;
+
+const workEntry = {
+    ...(idValue ? { id: idValue } : {}),   // ← добавляем id при редактировании
+    date: workDate.value,
+    start_time: workStart.value,
+    end_time: workEnd.value,
+    place: workPlace.value,
+    partner: workPartner.value,
+    total_hours: calcHours(workStart.value, workEnd.value)
+};
 
         console.log("📌 Данные смены:", workEntry);
+
+        // рассчитываем часы
+        function calcHours(start, end) {
+            const s = new Date("2000-01-01T" + start);
+            const e = new Date("2000-01-01T" + end);
+            return ((e - s) / 1000 / 60 / 60).toFixed(2);
+        }
+
+
 
         // Вызываем функцию для сохранения смены в базе данных
         await saveWorkEntry(workEntry);

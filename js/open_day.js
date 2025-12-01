@@ -92,13 +92,18 @@ async function openDayModal(year, month, day) {
 // ======================================================
 // ✏ Редактирование смены
 // ======================================================
+// ======================================================
+// ✏ Редактировать смену
+// ======================================================
+// ✏ Редактирование смены
 async function editWork(id) {
     console.log("✏ Редактирование смены:", id);
 
     closeModal("modalDay");
 
+    // ПРАВИЛЬНОЕ НАЗВАНИЕ ТАБЛИЦЫ
     const { data, error } = await supabaseClient
-        .from("work_entries")
+        .from("work_entries")   // ← ВОТ ЭТО ТВОЯ ТАБЛИЦА
         .select("*")
         .eq("id", id)
         .single();
@@ -108,7 +113,20 @@ async function editWork(id) {
         return;
     }
 
-    openWorkModal({ entry: data });
+    console.log("🟩 [editWork] данные смены:", data);
+
+    document.getElementById("modalWorkTitle").textContent = "Редактировать смену";
+
+    document.getElementById("workId").value = data.id;
+    document.getElementById("workDate").value = data.date;
+    document.getElementById("workStart").value = data.start_time;
+    document.getElementById("workEnd").value = data.end_time;
+    document.getElementById("workPlace").value = data.place;
+    document.getElementById("workPartner").value = data.partner;
+
+    document.getElementById("deleteWork").classList.remove("hidden");
+
+    openModal("modalWork");
 }
 
 window.editWork = editWork;
@@ -159,24 +177,76 @@ window.deleteWork = deleteWork;
 // ======================================================
 // 🗑 Удалить задачу
 // ======================================================
+// ---- Усовершённый deleteTask с подробными логами ----
 async function deleteTask(id) {
-    if (!confirm("Удалить задачу?")) return;
+    console.log("🗑 [deleteTask] START. id =", id);
 
-    console.log("🗑 Удаление задачи:", id);
+    if (!confirm("Удалить задачу?")) {
+        console.log("🗑 [deleteTask] Отменено пользователем");
+        return;
+    }
 
-    const { error } = await supabaseClient
-        .from("tasks")
-        .delete()
-        .eq("id", id);
+    try {
+        // Пытаемся удалить и сразу вернуть удалённые строки (select())
+        console.log("🗑 [deleteTask] Выполняю delete().select()");
+        const { data, error } = await supabaseClient
+            .from("tasks")
+            .delete()
+            .eq("id", id)
+            .select(); // запрос вернёт удалённую запись(и) если удаление прошло
 
-    if (error) console.error("❌ Ошибка удаления задачи:", error);
+        console.log("🗑 [deleteTask] Ответ delete():", { data, error });
 
-    closeModal("modalDay");
-    renderCalendar();
+        if (error) {
+            console.error("🗑 [deleteTask] Supabase error при удалении:", error);
+            alert("Ошибка при удалении (см. консоль).");
+            return;
+        }
+
+        if (Array.isArray(data) && data.length > 0) {
+            console.log("🗑 [deleteTask] Удаление подтверждено — удалено записей:", data.length);
+        } else {
+            console.warn("🗑 [deleteTask] delete() вернул пустой data → возможно RLS или ничего не удалено");
+        }
+
+        // Дополнительная проверка: пробуем получить запись по id (должно вернуть пустой массив)
+        console.log("🗑 [deleteTask] Проверяю наличие записи после удаления (select)");
+        const { data: check, error: checkErr } = await supabaseClient
+            .from("tasks")
+            .select("*")
+            .eq("id", id);
+
+        console.log("🗑 [deleteTask] Проверка после удаления:", { checkErr, check });
+
+        if (checkErr) {
+            console.error("🗑 [deleteTask] Ошибка при проверке наличия записи:", checkErr);
+        } else if (Array.isArray(check) && check.length === 0) {
+            console.log("🗑 [deleteTask] Подтверждение: запись отсутствует в таблице");
+        } else {
+            console.warn("🗑 [deleteTask] Запись всё ещё присутствует! Возможные причины: RLS (policy), mismatch user_id, или другой селектор.");
+            // Выведем user_id у текущей сессии и у записи (если она есть) — это поможет понять RLS
+            try {
+                const { data: sessionData } = await supabaseClient.auth.getUser();
+                console.log("🗑 [deleteTask] Текущий user_id:", sessionData?.user?.id);
+            } catch (e) {
+                console.warn("🗑 [deleteTask] Невозможно получить текущую сессию:", e);
+            }
+
+            if (Array.isArray(check) && check.length > 0) {
+                console.log("🗑 [deleteTask] Содержимое найденной записи:", check[0]);
+            }
+        }
+
+        // Перерисовываем UI вне зависимости от результата (чтобы пользователь увидел актуальные данные)
+        closeModal("modalDay");
+        renderCalendar();
+    } catch (err) {
+        console.error("🗑 [deleteTask] Неожиданная ошибка:", err);
+        alert("Неожиданная ошибка при удалении (см. консоль).");
+    }
 }
 
 window.deleteTask = deleteTask;
-
 
 // ======================================================
 // ✔ Отметить задачу выполненной / невыполненной

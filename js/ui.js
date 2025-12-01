@@ -71,6 +71,7 @@ window.openWorkModal = openWorkModal;
 function openTaskModal({ date = null, task = null } = {}) {
 
     const title = document.getElementById("modalTaskTitle");
+    console.log("🟦 [openTaskModal] OPEN", { date, task });
 
     if (task) {
         // --- РЕДАКТИРОВАНИЕ ---
@@ -82,22 +83,28 @@ function openTaskModal({ date = null, task = null } = {}) {
         document.getElementById("taskDescription").value = task.description || "";
         document.getElementById("taskId").value = task.id;
 
-        document.getElementById("deleteTask").classList.remove("hidden");
+        const deleteBtn = document.getElementById("deleteTask");
+        deleteBtn.classList.remove("hidden");
 
+        // Привязываем удаление конкретной задачи
+        deleteBtn.onclick = async () => {
+            if (!confirm("Удалить задачу?")) return;
+            console.log("🗑 Удаление задачи из модалки:", task.id);
+            await deleteTask(task.id); // deleteTask(id) есть в open_day.js
+            closeModal("modalTask");
+            renderCalendar();
+            console.log("🟦 [openTaskModal] MODE = EDIT. TaskID =", task.id);
+
+        };
     } else {
         // --- НОВАЯ ЗАДАЧА ---
-        title.textContent = "Добавить задачу";
-
-        const today = selectedDate || new Date().toISOString().slice(0, 10);
-
-        document.getElementById("taskDate").value = date || today;
-        document.getElementById("taskTime").value = "";
-        document.getElementById("taskTitle").value = "";
-        document.getElementById("taskDescription").value = "";
-        document.getElementById("taskId").value = "";
-
-        document.getElementById("deleteTask").classList.add("hidden");
+        // Скрываем и очищаем обработчик удаления
+        const deleteBtn = document.getElementById("deleteTask");
+        deleteBtn.classList.add("hidden");
+        deleteBtn.onclick = null;
+        console.log("🟦 [openTaskModal] MODE = NEW");
     }
+
 
     openModal("modalTask");
 }

@@ -1,20 +1,28 @@
 
-//js/save_task.js
+// js/save_task.js — исправленный обработчик сохранения задачи
 document.getElementById("saveTask").onclick = async () => {
-    console.log("🟦 Нажата кнопка: Сохранить задачу");
+    console.log("🟫 [saveTask] CLICKED");
+
+    const idValue = document.getElementById("taskId").value;
+    const dateValue = document.getElementById("taskDate").value;
 
     const task = {
-        date: selectedDate,
+        ...(idValue ? { id: idValue } : {}),
+        date: dateValue,
+        time: document.getElementById("taskTime").value,
         title: document.getElementById("taskTitle").value,
         description: document.getElementById("taskDescription").value,
-        time: document.getElementById("taskTime").value
     };
 
-    console.log("📌 Данные задачи:", task);
+    console.log("🟪 [saveTask] Собран объект для сохранения:", task);
 
-    await saveTaskToDB(task);
+    const before = performance.now();
+    const result = await saveTaskToDB(task);
+    console.log("🟪 [saveTask] Ответ от saveTaskToDB:", result, 
+                "⏱", (performance.now() - before).toFixed(1), "ms");
 
-    console.log("🔄 Перерисовка календаря после сохранения задачи");
     closeModal("modalTask");
+    console.log("🟫 [saveTask] Модалка закрыта → перерисовываем календарь");
     renderCalendar();
 };
+

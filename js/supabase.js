@@ -141,14 +141,14 @@ async function loadTasksForMonth(year, month) {
 // ---------- СОХРАНИТЬ ЗАДАЧУ ----------
 // отвечает за создание и редактирование задач.
 async function saveTaskToDB(task) {
-    console.log("💾 saveTaskToDB:", task);
+    console.log("🟥 [saveTaskToDB] ВХОД:", task);
 
     // Проверяем, есть ли дата у задачи
     if (!task.date) {
         console.error("❌ Ошибка: задача не имеет даты!");
         return; // Если даты нет — выходим из функции
     }
-
+    console.log("🟥 [saveTaskToDB] CHECK ID:", task.id ? "UPDATE" : "INSERT");
     if (task.id) { // Если у задачи есть id → РЕДАКТИРУЕМ
         // UPDATE, РЕДАКТИРОВАНИЕ задачи (UPDATE)
         const { data, error } = await supabaseClient
@@ -168,6 +168,7 @@ async function saveTaskToDB(task) {
         if (error) {
             console.error("❌ Ошибка UPDATE задачи:", error);
         }
+        console.log("🟥 [saveTaskToDB] UPDATE → результат:", data, "error:", error);
         return data;
     }
 
@@ -191,6 +192,8 @@ async function saveTaskToDB(task) {
     if (error) {
         console.error("❌ Ошибка INSERT задачи:", error);
     }
+    console.log("🟥 [saveTaskToDB] INSERT → результат:", data, "error:", error);
+
     return data;
     // Функция возвращает: либо обновленную, либо созданную задачу
 }
