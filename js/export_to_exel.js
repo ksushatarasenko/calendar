@@ -12,24 +12,24 @@ console.log("📄 export_to_exel.js загружен");
 // 1. Открытие модального окна экспорта
 // =============================================================
 
-document.addEventListener("DOMContentLoaded", () => {
-    const btn = document.getElementById("exportWeekBtn");
-    if (!btn) {
-        console.error("❌ exportWeekBtn не найден в DOM!");
-        return;
-    }
+// document.addEventListener("DOMContentLoaded", () => {
+//     const btn = document.getElementById("exportWeekBtn");
+//     if (!btn) {
+//         console.error("❌ exportWeekBtn не найден в DOM!");
+//         return;
+//     }
 
-    btn.onclick = () => {
-        console.log("📤 КНОПКА ЭКСПОРТ НАЖАТА!");
-        openModal("modalExport");
-    };
+//     btn.onclick = () => {
+//         console.log("📤 КНОПКА ЭКСПОРТ НАЖАТА!");
+//         openModal("modalExport");
+//     };
 
-    // кнопка EXCEL внутри модалки
-    const btnDownload = document.getElementById("exportDownloadBtn");
-    if (btnDownload) {
-        btnDownload.onclick = handleExportDownload;
-    }
-});
+//     // кнопка EXCEL внутри модалки
+//     const btnDownload = document.getElementById("exportDownloadBtn");
+//     if (btnDownload) {
+//         btnDownload.onclick = handleExportDownload;
+//     }
+// });
 
 
 // =============================================================

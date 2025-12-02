@@ -34,21 +34,51 @@ async function handleRecoveryFromURL() {
 //   Проверка авторизации
 // ===========================
 async function checkAuth() {
-    const { data: { session } } = await supabaseClient.auth.getSession();
+    console.log("🔍 [AUTH] checkAuth(): запускаю проверку...");
 
-    console.log("🔍 Ответ getSession():", { session });
+    // 1) Пробуем получить сессию сразу
+    let { data } = await supabaseClient.auth.getSession();
+    let session = data.session;
 
+    console.log("🟦 [AUTH] getSession():", data);
+
+    // 2) Если сессии нет — пробуем несколько раз (Supabase даёт задержку 100–300ms)
     if (!session) {
-        console.warn("⚠ Нет сессии — открываю login modal");
-        document.getElementById("loginModal").classList.remove("hidden");
+        console.warn("⏳ [AUTH] Сессии пока нет — жду появления...");
+
+        for (let i = 1; i <= 5; i++) {
+            await new Promise(r => setTimeout(r, 150));
+
+            let retry = await supabaseClient.auth.getSession();
+            console.log(`🟨 [AUTH] Повторная проверка #${i}:`, retry.data);
+
+            if (retry.data.session) {
+                console.log("🟩 [AUTH] Сессия появилась после задержки!");
+                session = retry.data.session;
+                break;
+            }
+        }
+    }
+
+    // 3) После всех попыток — если сессии нет, показываем login
+    if (!session) {
+        console.warn("❌ [AUTH] Пользователь НЕ авторизован — показываю login modal");
+
+        const modal = document.getElementById("loginModal");
+        if (modal) modal.classList.remove("hidden");
+        else console.error("❗ loginModal НЕ НАЙДЕН В DOM!");
+
         return false;
     }
 
+    // 4) Всё успешно — логиним
     window.currentUser = session.user;
 
-    console.log("🟢 СЕССИЯ ОК, USER:", session.user);
+    console.log("🟢 [AUTH] Авторизация успешна, USER:", session.user);
     return true;
 }
+
+
 
 
 
@@ -161,8 +191,8 @@ document.addEventListener("DOMContentLoaded", () => {
         loginBtn.onclick = async () => {
             console.log("▶ ЛОГИН");
 
-            const email = loginEmail.value.trim();
-            const pass  = loginPassword.value.trim();
+            const email = document.getElementById("loginEmail").value.trim();
+            const pass = document.getElementById("loginPassword").value.trim();
 
             await loginUser(email, pass);
         };
@@ -203,7 +233,7 @@ document.addEventListener("DOMContentLoaded", () => {
             console.log("▶ РЕГИСТРАЦИЯ");
 
             const email = regEmail.value.trim();
-            const pass  = regPass.value.trim();
+            const pass = regPass.value.trim();
             const pass2 = regPass2.value.trim();
 
             if (!email) return alert("Введите email");
@@ -221,6 +251,50 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         };
     }
+    // Глобальный авто-ловец — ждёт session и только потом отправляет сигнал на запуск календаря
+    supabaseClient.auth.onAuthStateChange(async (event, session) => {
+        console.log("🔄 AUTH STATE CHANGE:", event, session);
+
+        if (session && session.user) {
+            console.log("🎉 USER READY → запускаю КАЛЕНДАРЬ");
+
+            // Отправляем кастомное событие — его перехватит app.js или calendar.js
+            document.dispatchEvent(new CustomEvent("user-ready", {
+                detail: { user: session.user }
+            }));
+        }
+    });
+
+});
+let appStarted = false;
+
+function startAppWhenReady(user) {
+    if (appStarted) return;
+    if (!user) return;
+
+    appStarted = true;
+    console.log("🚀 Запускаю приложение, USER:", user);
+
+    window.currentUser = user;
+    document.dispatchEvent(new CustomEvent("user-ready", { detail: { user } }));
+}
+                    
+supabaseClient.auth.onAuthStateChange((event, session) => {
+    console.log("🔥 AUTH STATE:", event, session);
+
+    if (event === "SIGNED_IN") {
+        startAppWhenReady(session.user);
+    }
+
+    if (event === "INITIAL_SESSION") {
+        if (session) startAppWhenReady(session.user);
+    }
+
+    if (event === "SIGNED_OUT") {
+        appStarted = false;
+        document.getElementById("loginModal").classList.remove("hidden");
+    }
 });
 
+window.handleRecoveryFromURL = handleRecoveryFromURL;
 
